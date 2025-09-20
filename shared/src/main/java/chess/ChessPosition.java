@@ -7,8 +7,15 @@ package chess;
  * signature of the existing methods.
  */
 public class ChessPosition {
+    private int row;
+    private int col;
 
     public ChessPosition(int row, int col) {
+        if (row < 0 || col < 0 || row > 8 || col > 8) {
+            throw new IndexOutOfBoundsException("row or col out of bounds");
+        }
+        this.row = row;
+        this.col = col;
     }
 
     /**
@@ -16,7 +23,8 @@ public class ChessPosition {
      * 1 codes for the bottom row
      */
     public int getRow() {
-        throw new RuntimeException("Not implemented");
+        return this.row;
+//        throw new RuntimeException("Not implemented");
     }
 
     /**
@@ -24,6 +32,8 @@ public class ChessPosition {
      * 1 codes for the left row
      */
     public int getColumn() {
-        throw new RuntimeException("Not implemented");
+        return this.col;
+//        throw new RuntimeException("Not implemented");
     }
+
 }
