@@ -8,8 +8,12 @@ package chess;
  */
 public class ChessMove {
 
-    public ChessMove(ChessPosition startPosition, ChessPosition endPosition,
-                     ChessPiece.PieceType promotionPiece) {
+    private ChessPosition startPosition;
+    private ChessPiece.PieceType pieceType;
+    private ChessGame.TeamColor team;
+
+    public ChessMove(ChessPosition startPosition, ChessPosition endPosition,ChessPiece.PieceType promotionPiece) {
+
     }
 
     /**
@@ -34,5 +38,25 @@ public class ChessMove {
      */
     public ChessPiece.PieceType getPromotionPiece() {
         throw new RuntimeException("Not implemented");
+    }
+
+    public void setStartPosition(ChessPosition startPosition) {
+        this.startPosition = startPosition;
+    }
+
+    public ChessPiece.PieceType getPieceType() {
+        return pieceType;
+    }
+
+    public void setPieceType(ChessPiece.PieceType pieceType) {
+        this.pieceType = pieceType;
+    }
+
+    public ChessGame.TeamColor getTeam() {
+        return team;
+    }
+
+    public void setTeam(ChessGame.TeamColor team) {
+        this.team = team;
     }
 }

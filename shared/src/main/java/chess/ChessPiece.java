@@ -14,8 +14,8 @@ public class ChessPiece {
     private PieceType piece;
 
     public ChessPiece(ChessGame.TeamColor pieceColor, ChessPiece.PieceType type) {
-        team = pieceColor;
-        piece = type;
+        setTeam(pieceColor);
+        setPiece(type);
     }
 
     /**
@@ -55,5 +55,13 @@ public class ChessPiece {
      */
     public Collection<ChessMove> pieceMoves(ChessBoard board, ChessPosition myPosition) {
         throw new RuntimeException("Not implemented");
+    }
+
+    public void setTeam(ChessGame.TeamColor team) {
+        this.team = team;
+    }
+
+    public void setPiece(PieceType piece) {
+        this.piece = piece;
     }
 }
