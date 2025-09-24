@@ -13,7 +13,7 @@ public class ChessMove {
     private ChessGame.TeamColor team;
 
     public ChessMove(ChessPosition startPosition, ChessPosition endPosition,ChessPiece.PieceType promotionPiece) {
-
+        throw new RuntimeException("Not implemented");
     }
 
     /**

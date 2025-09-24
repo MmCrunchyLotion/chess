@@ -35,7 +35,6 @@ public class ChessPiece {
      */
     public ChessGame.TeamColor getTeamColor() {
         return this.team;
-//        throw new RuntimeException("Not implemented");
     }
 
     /**
@@ -43,7 +42,6 @@ public class ChessPiece {
      */
     public PieceType getPieceType() {
         return this.piece;
-//        throw new RuntimeException("Not implemented");
     }
 
     /**

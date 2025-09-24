@@ -9,15 +9,15 @@ package chess;
 public class ChessPosition {
     private int row;
     private int col;
-    private boolean occupied;
+    private ChessPiece occupiedBy;
 
     public ChessPosition(int row, int col) {
-        if (row < 0 || col < 0 || row > 8 || col > 8) {
+        if (row < 1 || col < 1 || row > 8 || col > 8) {
             throw new IndexOutOfBoundsException("row or col out of bounds");
         }
         setRow(row);
         setCol(col);
-        setOccupied(false);
+        setOccupied(null);
     }
 
     /**
@@ -26,7 +26,6 @@ public class ChessPosition {
      */
     public int getRow() {
         return this.row;
-//        throw new RuntimeException("Not implemented");
     }
 
     /**
@@ -35,7 +34,6 @@ public class ChessPosition {
      */
     public int getColumn() {
         return this.col;
-//        throw new RuntimeException("Not implemented");
     }
 
     public void setRow(int row) {
@@ -46,10 +44,11 @@ public class ChessPosition {
         this.col = col;
     }
 
-    public void setOccupied(boolean occupied) {
-        this.occupied = occupied;
+    public void setOccupied(ChessPiece occupiedBy) {
+        this.occupiedBy = occupiedBy;
     }
-    public boolean isOccupied() {
-        return this.occupied;
+
+    public ChessPiece getOccupied() {
+        return this.occupiedBy;
     }
 }
