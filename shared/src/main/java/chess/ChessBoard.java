@@ -15,9 +15,7 @@ public class ChessBoard {
     private List<ChessPosition> board;
 
     public ChessBoard() {
-        List<ChessPosition> board = new ArrayList<>();
-        setBoard(board);
-//        resetBoard();
+        setBoard(new ArrayList<>());
     }
 
     /**
@@ -27,16 +25,11 @@ public class ChessBoard {
      * @param piece    the piece to add
      */
     public void addPiece(ChessPosition position, ChessPiece piece) {
-        if (position.getOccupied() != null) {
-            if (piece.getPieceType() != getPiece(position).getPieceType()) {
-//                throw new RuntimeException("Position occupied by another piece from the same team");
-//            } else {
-                // capture
-                position.setOccupied(piece);
+        for (ChessPosition p : getBoard()) {
+            if (p.equals(position)) {
+                p.setOccupied(piece);
+                return;
             }
-        } else {
-            // add to empty position
-            position.setOccupied(piece);
         }
     }
 
@@ -48,11 +41,12 @@ public class ChessBoard {
      * position
      */
     public ChessPiece getPiece(ChessPosition position) {
-        if (position.getOccupied() == null) {
-            return null;
-        } else {
-            return position.getOccupied();
+        for (ChessPosition p : board) {
+            if (p.equals(position)) {
+                return p.getOccupied();
+            }
         }
+        return null;
     }
 
     /**
@@ -94,6 +88,7 @@ public class ChessBoard {
     }
 
     public void setBoard(List<ChessPosition> squares) {
+        squares.clear();
         for (int i = 1; i < 9; i++) {
             for (int j = 1; j < 9; j++) {
                 ChessPosition square = new ChessPosition(i, j);
@@ -105,15 +100,25 @@ public class ChessBoard {
 
     @Override
     public boolean equals(Object o) {
-        if (o == null || getClass() != o.getClass()) {
-            return false;
-        }
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
         ChessBoard that = (ChessBoard) o;
-        return Objects.equals(board, that.board);
+        for (int i = 0; i < this.board.size(); i++) {
+            ChessPosition thisPos = this.board.get(i);
+            ChessPosition thatPos = that.board.get(i);
+            if (!Objects.equals(thisPos.getOccupied(), thatPos.getOccupied())) {
+                return false;
+            }
+        }
+        return true;
     }
 
     @Override
     public int hashCode() {
-        return Objects.hashCode(board);
+        return board.stream()
+                .map(ChessPosition::getOccupied)
+                .filter(Objects::nonNull)
+                .mapToInt(Objects::hashCode)
+                .reduce(0, Integer::sum);
     }
 }

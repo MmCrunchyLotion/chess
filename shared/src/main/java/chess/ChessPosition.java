@@ -14,9 +14,6 @@ public class ChessPosition {
     private ChessPiece occupiedBy;
 
     public ChessPosition(int row, int col) {
-//        if (row < 1 || col < 1 || row > 8 || col > 8) {
-//            throw new IndexOutOfBoundsException("row or col out of bounds");
-//        }
         setRow(row);
         setCol(col);
         setOccupied(null);
@@ -56,15 +53,16 @@ public class ChessPosition {
 
     @Override
     public boolean equals(Object o) {
+        if (this == o) return true; // ??? do I need this?
         if (o == null || getClass() != o.getClass()) {
             return false;
         }
         ChessPosition that = (ChessPosition) o;
-        return row == that.row && col == that.col && Objects.equals(occupiedBy, that.occupiedBy);
+        return row == that.row && col == that.col;
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(row, col, occupiedBy);
+        return Objects.hash(row, col);
     }
 }
