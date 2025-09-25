@@ -13,14 +13,11 @@ public class ChessMove {
     private ChessPosition startPosition;
     private ChessPosition endPosition;
     private ChessPiece.PieceType promotionPiece;
-//    private ChessPiece.PieceType pieceType;
-//    private ChessGame.TeamColor team;
 
     public ChessMove(ChessPosition startPosition, ChessPosition endPosition,ChessPiece.PieceType promotionPiece) {
         setStartPosition(startPosition);
         setEndPosition(endPosition);
         setPromotionPiece(promotionPiece);
-//        throw new RuntimeException("Not implemented");
     }
 
     /**
@@ -28,7 +25,6 @@ public class ChessMove {
      */
     public ChessPosition getStartPosition() {
         return this.startPosition;
-//        throw new RuntimeException("Not implemented");
     }
 
     /**
@@ -36,7 +32,6 @@ public class ChessMove {
      */
     public ChessPosition getEndPosition() {
         return this.endPosition;
-//        throw new RuntimeException("Not implemented");
     }
 
     /**
@@ -51,7 +46,6 @@ public class ChessMove {
         } else {
             return null;
         }
-//        throw new RuntimeException("Not implemented");
     }
 
     public void setStartPosition(ChessPosition startPosition) {
