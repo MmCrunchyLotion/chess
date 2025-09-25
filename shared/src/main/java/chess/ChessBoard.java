@@ -2,6 +2,7 @@ package chess;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * A chessboard that can hold and rearrange chess pieces.
@@ -16,7 +17,7 @@ public class ChessBoard {
     public ChessBoard() {
         List<ChessPosition> board = new ArrayList<>();
         setBoard(board);
-        resetBoard();
+//        resetBoard();
     }
 
     /**
@@ -27,9 +28,9 @@ public class ChessBoard {
      */
     public void addPiece(ChessPosition position, ChessPiece piece) {
         if (position.getOccupied() != null) {
-            if (piece.getPieceType() == getPiece(position).getPieceType()) {
-                throw new RuntimeException("Position occupied by another piece from the same team");
-            } else {
+            if (piece.getPieceType() != getPiece(position).getPieceType()) {
+//                throw new RuntimeException("Position occupied by another piece from the same team");
+//            } else {
                 // capture
                 position.setOccupied(piece);
             }
@@ -100,5 +101,19 @@ public class ChessBoard {
             }
         }
         this.board = squares;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        ChessBoard that = (ChessBoard) o;
+        return Objects.equals(board, that.board);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(board);
     }
 }

@@ -1,5 +1,7 @@
 package chess;
 
+import java.util.Objects;
+
 /**
  * Represents a single square position on a chess board
  * <p>
@@ -12,9 +14,9 @@ public class ChessPosition {
     private ChessPiece occupiedBy;
 
     public ChessPosition(int row, int col) {
-        if (row < 1 || col < 1 || row > 8 || col > 8) {
-            throw new IndexOutOfBoundsException("row or col out of bounds");
-        }
+//        if (row < 1 || col < 1 || row > 8 || col > 8) {
+//            throw new IndexOutOfBoundsException("row or col out of bounds");
+//        }
         setRow(row);
         setCol(col);
         setOccupied(null);
@@ -50,5 +52,19 @@ public class ChessPosition {
 
     public ChessPiece getOccupied() {
         return this.occupiedBy;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        ChessPosition that = (ChessPosition) o;
+        return row == that.row && col == that.col && Objects.equals(occupiedBy, that.occupiedBy);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(row, col, occupiedBy);
     }
 }
