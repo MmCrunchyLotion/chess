@@ -129,8 +129,8 @@ public class ChessGame {
 
     private Collection<ChessPosition> findTeamPositions(TeamColor teamColor) {
         Collection<ChessPosition> positions = new ArrayList<>();
-        for (int i = 0; i < 8; i++) {
-            for (int j = 0; j < 8; j++) {
+        for (int i = 1; i < 9; i++) {
+            for (int j = 1; j < 9; j++) {
                 ChessPosition currentSquare = board.getPosition(i, j);
                 if (currentSquare.getOccupied() != null && currentSquare.getOccupied().getTeamColor() == teamColor) {
                     positions.add(currentSquare);
@@ -170,6 +170,4 @@ public class ChessGame {
     public ChessBoard getBoard() {
         return this.board;
     }
-
-
 }
