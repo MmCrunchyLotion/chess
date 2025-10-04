@@ -87,7 +87,7 @@ public class ChessGame {
      * @param teamColor which team to check for check
      * @return True if the specified team is in check
      */
-    public boolean isInCheck(TeamColor teamColor) {
+    public boolean isInCheck(TeamColor teamColor) /*throws InvalidMoveException*/ {
         ChessPosition kingPosition = findKing(teamColor);
         TeamColor otherTeam = (teamColor == TeamColor.WHITE) ? TeamColor.BLACK : TeamColor.WHITE;
         for (ChessPosition position : findTeamPositions(otherTeam)) {
@@ -106,11 +106,11 @@ public class ChessGame {
      * @param teamColor which team to check for checkmate
      * @return True if the specified team is in checkmate
      */
-    public boolean isInCheckmate(TeamColor teamColor) {
-//        if (isInCheck(teamColor)) {
-//
-//        }
-        throw new RuntimeException("Not implemented");
+    public boolean isInCheckmate(TeamColor teamColor) /*throws InvalidMoveException*/ {
+        if (isInCheck(teamColor)) {
+            return validMoves(findKing(teamColor)) == null;
+        }
+        return false;
     }
 
     /**
@@ -120,8 +120,11 @@ public class ChessGame {
      * @param teamColor which team to check for stalemate
      * @return True if the specified team is in stalemate, otherwise false
      */
-    public boolean isInStalemate(TeamColor teamColor) {
-        throw new RuntimeException("Not implemented");
+    public boolean isInStalemate(TeamColor teamColor) /*throws InvalidMoveException*/ {
+        if (isInCheck(teamColor)) {
+            return validMoves(findKing(teamColor)) == null;
+        }
+        return false;
     }
 
     private Collection<ChessPosition> findTeamPositions(TeamColor teamColor) {
@@ -137,7 +140,7 @@ public class ChessGame {
         return positions;
     }
 
-    private ChessPosition findKing(TeamColor teamColor) {
+    private ChessPosition findKing(TeamColor teamColor) /*throws InvalidMoveException*/ {
         if (!findTeamPositions(teamColor).isEmpty()) {
             for (ChessPosition position : findTeamPositions(teamColor)) {
                 if (position.getOccupied().getPieceType().equals(ChessPiece.PieceType.KING)) {
@@ -146,6 +149,8 @@ public class ChessGame {
             }
         }
         return null;
+//        String message = "King not found";
+//        throw new InvalidMoveException(message);
     }
 
     /**
