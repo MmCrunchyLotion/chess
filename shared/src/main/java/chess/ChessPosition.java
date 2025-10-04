@@ -51,6 +51,12 @@ public class ChessPosition {
         return this.occupiedBy;
     }
 
+    public ChessPosition copy() {
+        ChessPosition copy = new ChessPosition(this.row, this.col);
+        copy.setOccupied(this.occupiedBy.copy());
+        return copy;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;

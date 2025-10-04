@@ -71,6 +71,10 @@ public class ChessPiece {
         this.piece = piece;
     }
 
+    public ChessPiece copy() {
+        return new ChessPiece(this.team, this.piece);
+    }
+
     @Override
     public boolean equals(Object o) {
         if (o == null || getClass() != o.getClass()) {

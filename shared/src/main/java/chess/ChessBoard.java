@@ -93,14 +93,28 @@ public class ChessBoard {
     }
 
     public void setBoard(List<ChessPosition> squares) {
-        squares.clear();
-        for (int i = 1; i < 9; i++) {
-            for (int j = 1; j < 9; j++) {
-                ChessPosition square = new ChessPosition(i, j);
-                squares.add(square);
+        if (!squares.isEmpty()) {
+            for (int i = 1; i < 9; i++) {
+                for (int j = 1; j < 9; j++) {
+                    ChessPosition square = new ChessPosition(i, j);
+                    squares.add(square);
+                }
             }
+            this.board = squares;
+        } else {
+            this.board = squares;
         }
-        this.board = squares;
+    }
+
+    public ChessBoard copy() {
+        ChessBoard clone = new ChessBoard();
+        ArrayList<ChessPosition> copies = new ArrayList<>();
+        for (ChessPosition p : board) {
+            ChessPosition copy = p.copy();
+            copies.add(copy);
+        }
+        clone.setBoard(copies);
+        return clone;
     }
 
     @Override
