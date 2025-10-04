@@ -82,8 +82,10 @@ public class ChessGame {
         ChessPosition startPosition = board.getPosition(move.getStartPosition().getRow(), move.getStartPosition().getColumn());
         ChessPosition endPosition = board.getPosition(move.getEndPosition().getRow(), move.getEndPosition().getColumn());
         ChessMove actualMove = new ChessMove(startPosition, endPosition, move.getPromotionPiece());
-        if (!validMoves(actualMove.getStartPosition()).isEmpty()) {
+        Collection<ChessMove> validMoves = validMoves(actualMove.getStartPosition());
+        if (validMoves.contains(actualMove)) {
             executeMove(actualMove);
+            TeamTurn = (getTeamTurn() == TeamColor.WHITE) ? TeamColor.BLACK : TeamColor.WHITE;
         } else {
             throw new InvalidMoveException();
         }
@@ -96,7 +98,6 @@ public class ChessGame {
             board.addPiece(move.getEndPosition(), new ChessPiece(getTeamTurn(), move.getPromotionPiece()));
         }
         move.getStartPosition().setOccupied(null);
-//        TeamTurn = (getTeamTurn() == TeamColor.WHITE) ? TeamColor.BLACK : TeamColor.WHITE;
     }
 
     /**
