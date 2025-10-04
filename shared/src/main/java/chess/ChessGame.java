@@ -55,7 +55,7 @@ public class ChessGame {
     public Collection<ChessMove> validMoves(ChessPosition startPosition) {
         ChessPosition actualStartPosition = board.getPosition(startPosition.getRow(), startPosition.getColumn());
         if (actualStartPosition.getOccupied() != null) {
-            return startPosition.getOccupied().pieceMoves(board, actualStartPosition);
+            return actualStartPosition.getOccupied().pieceMoves(board, actualStartPosition);
         } else {
             return null;
         }
