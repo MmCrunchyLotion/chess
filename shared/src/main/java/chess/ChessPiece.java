@@ -1,6 +1,5 @@
 package chess;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Objects;
 
@@ -55,144 +54,13 @@ public class ChessPiece {
      */
     public Collection<ChessMove> pieceMoves(ChessBoard board, ChessPosition myPosition) {
         return switch (piece) {
-            case KING -> getKingMoves(board, myPosition);
-            case QUEEN -> getQueenMoves(board, myPosition);
-            case BISHOP-> getBishopMoves(board, myPosition);
-            case KNIGHT -> getKnightMoves(board, myPosition);
-            case ROOK -> getRookMoves(board, myPosition);
-            case PAWN -> getPawnMoves(board, myPosition);
+            case KING -> new MoveCalculator(board,myPosition,this).getKingMoves();
+            case QUEEN -> new MoveCalculator(board,myPosition,this).getQueenMoves();
+            case BISHOP-> new MoveCalculator(board,myPosition,this).getBishopMoves();
+            case KNIGHT -> new MoveCalculator(board,myPosition,this).getKnightMoves();
+            case ROOK -> new MoveCalculator(board,myPosition,this).getRookMoves();
+            case PAWN -> new MoveCalculator(board,myPosition,this).getPawnMoves();
         };
-    }
-
-    private Collection<ChessMove> getKingMoves(ChessBoard board, ChessPosition myPosition) {
-        Collection<ChessMove> moves = new ArrayList<>();
-        int[][] directions = {{-1, 0}, {-1, 1}, {0, 1}, {1, 1}, {1, 0}, {1, -1}, {0, -1}, {-1, -1}};
-        moveByDirection(board, myPosition, directions, moves);
-        return moves;
-    }
-    
-    private Collection<ChessMove> getQueenMoves(ChessBoard board, ChessPosition myPosition) {
-        Collection<ChessMove> moves = new ArrayList<>();
-        int[][] directions = {{-1, 0}, {-1, 1}, {0, 1}, {1, 1}, {1, 0}, {1, -1}, {0, -1}, {-1, -1}};
-        slideByDirection(board, myPosition, directions, moves);
-        return moves;
-    }
-
-    private Collection<ChessMove> getBishopMoves(ChessBoard board, ChessPosition myPosition) {
-        Collection<ChessMove> moves = new ArrayList<>();
-        int[][] directions = {{-1, -1}, {-1, 1}, {1, -1}, {1, 1}};
-        slideByDirection(board, myPosition, directions, moves);
-        return moves;
-    }
-    private Collection<ChessMove> getKnightMoves(ChessBoard board, ChessPosition myPosition) {
-        Collection<ChessMove> moves = new ArrayList<>();
-        int[][] directions = {{1,-2 }, {2, -1}, {2, 1}, {1, 2}, {-1, 2}, {-2, 1}, {-2, -1}, {-1, -2}};
-        moveByDirection(board, myPosition, directions, moves);
-        return moves;
-    }
-
-    private Collection<ChessMove> getRookMoves(ChessBoard board, ChessPosition myPosition) {
-        Collection<ChessMove> moves = new ArrayList<>();
-        int[][] directions = {{-1, 0}, {1, 0}, {0, -1}, {0, 1}};
-        slideByDirection(board, myPosition, directions, moves);
-        return moves;
-    }
-    private Collection<ChessMove> getPawnMoves(ChessBoard board, ChessPosition myPosition) {
-        Collection<ChessMove> moves = new ArrayList<>();
-        int direction = (this.team == ChessGame.TeamColor.WHITE) ? 1 : -1;
-        int startRow = (this.team == ChessGame.TeamColor.WHITE) ? 2 : 7;
-        int promotionRow = (this.team == ChessGame.TeamColor.WHITE) ? 8 : 1;
-        int row = myPosition.getRow();
-        int column = myPosition.getColumn();
-
-        // double move
-        if (row == startRow){
-            if (board.getPosition(row + (2 * direction), column).getOccupied() == null && board.getPosition(row + direction, column).getOccupied() == null){
-                moves.add(new ChessMove(myPosition, board.getPosition(row + (2 * direction), column), null));
-            }
-        }
-
-        // single move
-        if (board.getPosition(row + direction, column).getOccupied() == null){
-            if (row + direction == promotionRow) {
-                addPromotions(myPosition, board.getPosition(row + direction, column), moves);
-            } else {
-                moves.add(new ChessMove(myPosition, board.getPosition(row + direction, column), null));
-            }
-        }
-
-        // capture left
-        if (column > 1 && board.getPosition(row + direction, column - 1).getOccupied() != null) {
-            if (board.getPosition(row + direction, column - 1).getOccupied().getTeamColor() != this.team){
-                if (row + direction == promotionRow) {
-                    addPromotions(myPosition, board.getPosition(row + direction, column - 1), moves);
-                } else {
-                    moves.add(new ChessMove(myPosition, board.getPosition(row + direction, column - 1), null));
-                }
-            }
-        }
-
-        // capture right
-        if (column < 8 && board.getPosition(row + direction, column + 1).getOccupied() != null){
-            if (board.getPosition(row + direction, column + 1).getOccupied().getTeamColor() != this.team){
-                if (row + direction == promotionRow) {
-                    addPromotions(myPosition, board.getPosition(row + direction, column + 1), moves);
-                } else {
-                    moves.add(new ChessMove(myPosition, board.getPosition(row + direction, column + 1), null));
-                }
-            }
-        }
-        
-        return moves;
-    }
-
-    private void moveByDirection(ChessBoard board, ChessPosition myPosition, int[][] directions, Collection<ChessMove> moves) {
-        int row = myPosition.getRow();
-        int column = myPosition.getColumn();
-
-        for (int[] direction : directions) {
-            int newRow = row + direction[0];
-            int newColumn = column + direction[1];
-
-            if (newRow >= 1 && newRow <= 8 && newColumn >= 1 && newColumn <= 8) {
-                if (board.getPosition(newRow, newColumn).getOccupied() == null) {
-                    moves.add(new ChessMove(myPosition, board.getPosition(newRow, newColumn), null));
-                } else {
-                    if (board.getPosition(newRow, newColumn).getOccupied().getTeamColor() != team) {
-                        moves.add(new ChessMove(myPosition, board.getPosition(newRow, newColumn), null));
-                    }
-                }
-            }
-        }
-    }
-    
-    private void slideByDirection(ChessBoard board, ChessPosition myPosition, int[][] directions, Collection<ChessMove> moves) {
-        int startRow = myPosition.getRow();
-        int startColumn = myPosition.getColumn();
-
-        for (int[] direction : directions) {
-            int newRow = startRow + direction[0];
-            int newColumn = startColumn + direction[1];
-            while (newRow >= 1 && newRow <= 8 && newColumn >= 1 && newColumn <= 8){
-                if (board.getPosition(newRow, newColumn).getOccupied() == null) {
-                    moves.add(new ChessMove(myPosition, board.getPosition(newRow, newColumn), null));
-                } else {
-                    if (board.getPosition(newRow, newColumn).getOccupied().getTeamColor() != team) {
-                        moves.add(new ChessMove(myPosition, board.getPosition(newRow, newColumn), null));
-                    }
-                    break;
-                }
-                newRow += direction[0];
-                newColumn += direction[1];
-            }
-        }
-    }
-
-    private void addPromotions(ChessPosition from, ChessPosition to, Collection<ChessMove> moves) {
-        moves.add(new ChessMove(from, to, PieceType.QUEEN));
-        moves.add(new ChessMove(from, to, PieceType.BISHOP));
-        moves.add(new ChessMove(from, to, PieceType.KNIGHT));
-        moves.add(new ChessMove(from, to, PieceType.ROOK));
     }
 
     public void setTeam(ChessGame.TeamColor team) {
@@ -217,3 +85,5 @@ public class ChessPiece {
         return Objects.hash(team, piece);
     }
 }
+
+
