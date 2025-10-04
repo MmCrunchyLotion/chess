@@ -93,7 +93,7 @@ public class ChessBoard {
     }
 
     public void setBoard(List<ChessPosition> squares) {
-        if (!squares.isEmpty()) {
+        if (squares.isEmpty()) {
             for (int i = 1; i < 9; i++) {
                 for (int j = 1; j < 9; j++) {
                     ChessPosition square = new ChessPosition(i, j);

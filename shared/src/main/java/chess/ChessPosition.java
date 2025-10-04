@@ -53,7 +53,11 @@ public class ChessPosition {
 
     public ChessPosition copy() {
         ChessPosition copy = new ChessPosition(this.row, this.col);
-        copy.setOccupied(this.occupiedBy.copy());
+        if (this.occupiedBy != null) {
+            copy.setOccupied(this.occupiedBy.copy());
+        } else {
+            copy.setOccupied(null);
+        }
         return copy;
     }
 

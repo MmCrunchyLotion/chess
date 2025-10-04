@@ -55,17 +55,16 @@ public class ChessGame {
     public Collection<ChessMove> validMoves(ChessPosition startPosition) {
         ChessPosition actualStartPosition = board.getPosition(startPosition.getRow(), startPosition.getColumn());
         ChessPiece piece = actualStartPosition.getOccupied();
+        TeamColor team = piece.getTeamColor();
         Collection<ChessMove> legalMoves = new ArrayList<>();
-        if (piece == null || piece.getTeamColor() != getTeamTurn()) {
+        if (piece == null || team != getTeamTurn()) {
             return legalMoves;
         }
         Collection<ChessMove> possibleMoves = actualStartPosition.getOccupied().pieceMoves(board, actualStartPosition);
         for (ChessMove move : possibleMoves) {
-            ChessBoard boardCopy = board.copy();
-            ChessGame gameCopy = new ChessGame();
-            gameCopy.setBoard(boardCopy);
+            ChessGame gameCopy = this.copy();
             gameCopy.executeMove(move);
-            if (!gameCopy.isInCheck(move.getStartPosition().getOccupied().getTeamColor())) {
+            if (!gameCopy.isInCheck(team)) {
                 legalMoves.add(move);
             }
         }
@@ -97,6 +96,7 @@ public class ChessGame {
             board.addPiece(move.getEndPosition(), new ChessPiece(getTeamTurn(), move.getPromotionPiece()));
         }
         move.getStartPosition().setOccupied(null);
+//        TeamTurn = (getTeamTurn() == TeamColor.WHITE) ? TeamColor.BLACK : TeamColor.WHITE;
     }
 
     /**
@@ -141,9 +141,14 @@ public class ChessGame {
      */
     public boolean isInStalemate(TeamColor teamColor) /*throws InvalidMoveException*/ {
         if (!isInCheck(teamColor)) {
-            return validMoves(findKing(teamColor)) == null;
+            if (findKing(teamColor) == null) {
+                return false;
+            } else {
+                return validMoves(findKing(teamColor)) == null;
+            }
+        } else {
+            return false;
         }
-        return false;
     }
 
     private Collection<ChessPosition> findTeamPositions(TeamColor teamColor) {
@@ -192,6 +197,13 @@ public class ChessGame {
      */
     public ChessBoard getBoard() {
         return this.board;
+    }
+
+    public ChessGame copy() {
+        ChessGame copy = new ChessGame();
+        copy.setBoard(board.copy());
+        copy.setTeamTurn(getTeamTurn());
+        return copy;
     }
 
     @Override
