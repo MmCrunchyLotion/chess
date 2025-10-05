@@ -57,9 +57,6 @@ public class ChessGame {
         ChessPiece piece = actualStartPosition.getOccupied();
         TeamColor team = piece.getTeamColor();
         Collection<ChessMove> legalMoves = new ArrayList<>();
-        if (piece == null || team != getTeamTurn()) {
-            return legalMoves;
-        }
         Collection<ChessMove> possibleMoves = actualStartPosition.getOccupied().pieceMoves(board, actualStartPosition);
         for (ChessMove move : possibleMoves) {
             ChessGame gameCopy = this.copy();
@@ -81,6 +78,9 @@ public class ChessGame {
         /* handling a move that uses a new position rather than an existing one */
         ChessPosition startPosition = board.getPosition(move.getStartPosition().getRow(), move.getStartPosition().getColumn());
         ChessPosition endPosition = board.getPosition(move.getEndPosition().getRow(), move.getEndPosition().getColumn());
+        if (getTeamTurn() != startPosition.getOccupied().getTeamColor()) {
+            throw new InvalidMoveException();
+        }
         ChessMove actualMove = new ChessMove(startPosition, endPosition, move.getPromotionPiece());
         Collection<ChessMove> validMoves = validMoves(actualMove.getStartPosition());
         if (validMoves.contains(actualMove)) {
@@ -106,14 +106,18 @@ public class ChessGame {
      * @param teamColor which team to check for check
      * @return True if the specified team is in check
      */
-    public boolean isInCheck(TeamColor teamColor) /*throws InvalidMoveException*/ {
+    public boolean isInCheck(TeamColor teamColor) {
         ChessPosition kingPosition = findKing(teamColor);
         TeamColor otherTeam = getOtherTeam(teamColor);
         Collection<ChessPosition> otherTeamPositions = findTeamPositions(otherTeam);
         for (ChessPosition position : otherTeamPositions) {
-            for (ChessMove move : validMoves(position)) {
-                if (move.getEndPosition().equals(kingPosition)) {
-                    return true;
+            ChessPiece piece = position.getOccupied();
+            if (piece != null) {
+                Collection<ChessMove> moves = piece.pieceMoves(board, position);
+                for (ChessMove move : moves) {
+                    if (move.getEndPosition().equals(kingPosition)) {
+                        return true;
+                    }
                 }
             }
         }
@@ -126,8 +130,9 @@ public class ChessGame {
      * @param teamColor which team to check for checkmate
      * @return True if the specified team is in checkmate
      */
-    public boolean isInCheckmate(TeamColor teamColor) /*throws InvalidMoveException*/ {
+    public boolean isInCheckmate(TeamColor teamColor) {
         if (isInCheck(teamColor)) {
+            /* this needs to check all moves that team can make instead of just the king */
             return validMoves(findKing(teamColor)) == null;
         }
         return false;
@@ -140,7 +145,7 @@ public class ChessGame {
      * @param teamColor which team to check for stalemate
      * @return True if the specified team is in stalemate, otherwise false
      */
-    public boolean isInStalemate(TeamColor teamColor) /*throws InvalidMoveException*/ {
+    public boolean isInStalemate(TeamColor teamColor) {
         if (!isInCheck(teamColor)) {
             if (findKing(teamColor) == null) {
                 return false;
@@ -165,7 +170,7 @@ public class ChessGame {
         return positions;
     }
 
-    private ChessPosition findKing(TeamColor teamColor) /*throws InvalidMoveException*/ {
+    private ChessPosition findKing(TeamColor teamColor) {
         if (!findTeamPositions(teamColor).isEmpty()) {
             for (ChessPosition position : findTeamPositions(teamColor)) {
                 if (position.getOccupied().getPieceType().equals(ChessPiece.PieceType.KING)) {
@@ -174,8 +179,6 @@ public class ChessGame {
             }
         }
         return null;
-//        String message = "King not found";
-//        throw new InvalidMoveException(message);
     }
 
     public TeamColor getOtherTeam(TeamColor teamColor) {
