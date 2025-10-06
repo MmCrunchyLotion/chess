@@ -13,10 +13,12 @@ public class ChessPiece {
 
     private ChessGame.TeamColor team;
     private PieceType piece;
+    private boolean moved;
 
     public ChessPiece(ChessGame.TeamColor pieceColor, ChessPiece.PieceType type) {
         setTeam(pieceColor);
         setPiece(type);
+        setMoved(false);
     }
 
     /**
@@ -71,8 +73,18 @@ public class ChessPiece {
         this.piece = piece;
     }
 
+    public boolean isMoved() {
+        return moved;
+    }
+
+    public void setMoved(boolean moved) {
+        this.moved = moved;
+    }
+
     public ChessPiece copy() {
-        return new ChessPiece(this.team, this.piece);
+        ChessPiece copy = new ChessPiece(this.team, this.piece);
+        copy.setMoved(this.moved);
+        return copy;
     }
 
     @Override

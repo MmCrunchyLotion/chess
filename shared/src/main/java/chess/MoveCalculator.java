@@ -20,6 +20,9 @@ public class MoveCalculator {
     public Collection<ChessMove> getKingMoves() {
         int[][] directions = {{-1, 0}, {-1, 1}, {0, 1}, {1, 1}, {1, 0}, {1, -1}, {0, -1}, {-1, -1}};
         moveByDirection(directions);
+//        if (canCastle()) {
+//            castle();
+//        }
         return moves;
     }
 
@@ -43,6 +46,9 @@ public class MoveCalculator {
     public Collection<ChessMove> getRookMoves() {
         int[][] directions = {{-1, 0}, {1, 0}, {0, -1}, {0, 1}};
         slideByDirection(directions);
+//        if (canCastle()) {
+//            castle();
+//        }
         return moves;
     }
     public Collection<ChessMove> getPawnMoves() {
@@ -135,6 +141,17 @@ public class MoveCalculator {
             }
         }
     }
+
+//    private boolean canCastle() {
+//        if (!piece.isMoved()) {
+//
+//        }
+//        return false;
+//    }
+//
+//    private void castle() {
+//
+//    }
 
     private void addPromotions(ChessPosition from, ChessPosition to, Collection<ChessMove> moves) {
         moves.add(new ChessMove(from, to, ChessPiece.PieceType.QUEEN));
