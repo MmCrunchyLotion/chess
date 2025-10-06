@@ -83,7 +83,16 @@ public class ChessBoard {
         this.addPiece(board.get(63), new ChessPiece(ChessGame.TeamColor.BLACK, ChessPiece.PieceType.ROOK));
     }
 
-    public ChessPosition getPosition(int row, int col) {
+    public ChessPosition getPosition(ChessPosition position) {
+        for (ChessPosition p : board) {
+            if (p.equals(position)) {
+                return p;
+            }
+        }
+        return null;
+    }
+
+    public ChessPosition getGridPosition(int row, int col) {
         int index = (row - 1) * 8 + (col - 1);
         return board.get(index);
     }

@@ -55,38 +55,38 @@ public class MoveCalculator {
 
         // double move
         if (row == startRow){
-            if (board.getPosition(row + (2 * direction), column).getOccupied() == null && board.getPosition(row + direction, column).getOccupied() == null){
-                moves.add(new ChessMove(myPosition, board.getPosition(row + (2 * direction), column), null));
+            if (board.getGridPosition(row + (2 * direction), column).getOccupied() == null && board.getGridPosition(row + direction, column).getOccupied() == null){
+                moves.add(new ChessMove(myPosition, board.getGridPosition(row + (2 * direction), column), null));
             }
         }
 
         // single move
-        if (board.getPosition(row + direction, column).getOccupied() == null){
+        if (board.getGridPosition(row + direction, column).getOccupied() == null){
             if (row + direction == promotionRow) {
-                addPromotions(myPosition, board.getPosition(row + direction, column), moves);
+                addPromotions(myPosition, board.getGridPosition(row + direction, column), moves);
             } else {
-                moves.add(new ChessMove(myPosition, board.getPosition(row + direction, column), null));
+                moves.add(new ChessMove(myPosition, board.getGridPosition(row + direction, column), null));
             }
         }
 
         // capture left
-        if (column > 1 && board.getPosition(row + direction, column - 1).getOccupied() != null) {
-            if (board.getPosition(row + direction, column - 1).getOccupied().getTeamColor() != getPiece().getTeamColor()){
+        if (column > 1 && board.getGridPosition(row + direction, column - 1).getOccupied() != null) {
+            if (board.getGridPosition(row + direction, column - 1).getOccupied().getTeamColor() != getPiece().getTeamColor()){
                 if (row + direction == promotionRow) {
-                    addPromotions(myPosition, board.getPosition(row + direction, column - 1), moves);
+                    addPromotions(myPosition, board.getGridPosition(row + direction, column - 1), moves);
                 } else {
-                    moves.add(new ChessMove(myPosition, board.getPosition(row + direction, column - 1), null));
+                    moves.add(new ChessMove(myPosition, board.getGridPosition(row + direction, column - 1), null));
                 }
             }
         }
 
         // capture right
-        if (column < 8 && board.getPosition(row + direction, column + 1).getOccupied() != null){
-            if (board.getPosition(row + direction, column + 1).getOccupied().getTeamColor() != getPiece().getTeamColor()){
+        if (column < 8 && board.getGridPosition(row + direction, column + 1).getOccupied() != null){
+            if (board.getGridPosition(row + direction, column + 1).getOccupied().getTeamColor() != getPiece().getTeamColor()){
                 if (row + direction == promotionRow) {
-                    addPromotions(myPosition, board.getPosition(row + direction, column + 1), moves);
+                    addPromotions(myPosition, board.getGridPosition(row + direction, column + 1), moves);
                 } else {
-                    moves.add(new ChessMove(myPosition, board.getPosition(row + direction, column + 1), null));
+                    moves.add(new ChessMove(myPosition, board.getGridPosition(row + direction, column + 1), null));
                 }
             }
         }
@@ -103,11 +103,11 @@ public class MoveCalculator {
             int newColumn = column + direction[1];
 
             if (newRow >= 1 && newRow <= 8 && newColumn >= 1 && newColumn <= 8) {
-                if (board.getPosition(newRow, newColumn).getOccupied() == null) {
-                    moves.add(new ChessMove(myPosition, board.getPosition(newRow, newColumn), null));
+                if (board.getGridPosition(newRow, newColumn).getOccupied() == null) {
+                    moves.add(new ChessMove(myPosition, board.getGridPosition(newRow, newColumn), null));
                 } else {
-                    if (board.getPosition(newRow, newColumn).getOccupied().getTeamColor() != getPiece().getTeamColor()) {
-                        moves.add(new ChessMove(myPosition, board.getPosition(newRow, newColumn), null));
+                    if (board.getGridPosition(newRow, newColumn).getOccupied().getTeamColor() != getPiece().getTeamColor()) {
+                        moves.add(new ChessMove(myPosition, board.getGridPosition(newRow, newColumn), null));
                     }
                 }
             }
@@ -122,11 +122,11 @@ public class MoveCalculator {
             int newRow = startRow + direction[0];
             int newColumn = startColumn + direction[1];
             while (newRow >= 1 && newRow <= 8 && newColumn >= 1 && newColumn <= 8){
-                if (board.getPosition(newRow, newColumn).getOccupied() == null) {
-                    moves.add(new ChessMove(myPosition, board.getPosition(newRow, newColumn), null));
+                if (board.getGridPosition(newRow, newColumn).getOccupied() == null) {
+                    moves.add(new ChessMove(myPosition, board.getGridPosition(newRow, newColumn), null));
                 } else {
-                    if (board.getPosition(newRow, newColumn).getOccupied().getTeamColor() != getPiece().getTeamColor()) {
-                        moves.add(new ChessMove(myPosition, board.getPosition(newRow, newColumn), null));
+                    if (board.getGridPosition(newRow, newColumn).getOccupied().getTeamColor() != getPiece().getTeamColor()) {
+                        moves.add(new ChessMove(myPosition, board.getGridPosition(newRow, newColumn), null));
                     }
                     break;
                 }
