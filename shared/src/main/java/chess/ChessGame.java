@@ -15,6 +15,7 @@ public class ChessGame {
 
     private ChessBoard board;
     private ChessGame.TeamColor TeamTurn;
+    private ChessMove lastMove = null;
 
     public ChessGame() {
         setBoard(new ChessBoard());
@@ -61,15 +62,47 @@ public class ChessGame {
             return legalMoves;
         }
         TeamColor team = piece.getTeamColor();
-        Collection<ChessMove> possibleMoves = actualStartPosition.getOccupied().pieceMoves(board, actualStartPosition);
+        Collection<ChessMove> possibleMoves = piece.pieceMoves(board, actualStartPosition);
+        checkPossibleMoves(possibleMoves, team, legalMoves);
+        return legalMoves;
+    }
+
+    private void checkPossibleMoves(Collection<ChessMove> possibleMoves, TeamColor team, Collection<ChessMove> legalMoves) {
         for (ChessMove move : possibleMoves) {
             ChessGame gameCopy = this.copy();
+            ChessPiece piece = board.getPiece(move.getStartPosition());
+            if (piece != null && piece.getPieceType() == ChessPiece.PieceType.KING) {
+                int colDiff = move.getEndPosition().getColumn() - move.getStartPosition().getColumn();
+                if (Math.abs(colDiff) == 2) {
+                    ChessGame intermediateGame = castlingInCheckHandler(team, move, colDiff);
+                    if (intermediateGame == null) {
+                        continue;
+                    }
+                    if (intermediateGame.isInCheck(team)) {
+                        continue;
+                    }
+                }
+            }
             gameCopy.executeMove(gameCopy.getBoard(), move);
             if (!gameCopy.isInCheck(team)) {
-                legalMoves.add(move);
+                if (!legalMoves.contains(move)) {
+                    legalMoves.add(move);
+                }
             }
         }
-        return legalMoves;
+    }
+
+    private ChessGame castlingInCheckHandler(TeamColor team, ChessMove move, int colDiff) {
+        if (isInCheck(team)) {
+            return null;
+        }
+        int row = move.getStartPosition().getRow();
+        int startCol = move.getStartPosition().getColumn();
+        int direction = (colDiff > 0) ? 1 : -1;
+        ChessGame intermediateGame = this.copy();
+        ChessMove intermediateMove = new ChessMove(move.getStartPosition(),intermediateGame.getBoard().getGridPosition(row, startCol + direction),null);
+        intermediateGame.executeMove(intermediateGame.getBoard(), intermediateMove);
+        return intermediateGame;
     }
 
     /**
@@ -89,6 +122,7 @@ public class ChessGame {
         Collection<ChessMove> validMoves = validMoves(startPosition);
         if (validMoves.contains(move)) {
             executeMove(board, move);
+            lastMove = move;
             TeamTurn = (getTeamTurn() == TeamColor.WHITE) ? TeamColor.BLACK : TeamColor.WHITE;
         } else {
             throw new InvalidMoveException();
@@ -99,15 +133,54 @@ public class ChessGame {
         ChessPosition startPosition = board.getPosition(move.getStartPosition());
         ChessPosition endPosition = board.getPosition(move.getEndPosition());
         ChessPiece piece = startPosition.getOccupied();
+        if (piece.getPieceType() == ChessPiece.PieceType.KING) {
+            castle(board, move);
+        }
+        if (piece.getPieceType() == ChessPiece.PieceType.PAWN) {
+            enPassantHandler(board, move, endPosition, startPosition);
+        }
         if (move.getPromotionPiece() == null) {
             board.addPiece(endPosition,piece);
         } else {
             board.addPiece(endPosition, new ChessPiece(piece.getTeamColor(), move.getPromotionPiece()));
         }
-        if (!endPosition.getOccupied().isMoved()) {
-            endPosition.getOccupied().setMoved(true);
+        if (endPosition.getOccupied() != null) {
+            if (!endPosition.getOccupied().isMoved()) {
+                endPosition.getOccupied().setMoved(true);
+            }
         }
         startPosition.setOccupied(null);
+    }
+
+    private static void enPassantHandler(ChessBoard board, ChessMove move, ChessPosition endPosition, ChessPosition startPosition) {
+        int colDiff = Math.abs(move.getEndPosition().getColumn() - move.getStartPosition().getColumn());
+        if (colDiff == 1 && endPosition.getOccupied() == null) {
+            int capturedPawnRow = startPosition.getRow();
+            int capturedPawnCol = endPosition.getColumn();
+            ChessPosition capturedPawnPosition = board.getGridPosition(capturedPawnRow, capturedPawnCol);
+            capturedPawnPosition.setOccupied(null);
+        }
+    }
+
+    private void castle(ChessBoard board, ChessMove move) {
+        int colDiff = move.getEndPosition().getColumn() - move.getStartPosition().getColumn();
+        if (colDiff == 2) {
+            int row = move.getStartPosition().getRow();
+            ChessPosition rookStart = board.getGridPosition(row, 8);
+            ChessPosition rookEnd = board.getGridPosition(row, 6);
+            ChessPiece rook = rookStart.getOccupied();
+            board.addPiece(rookEnd, rook);
+            rookEnd.getOccupied().setMoved(true);
+            rookStart.setOccupied(null);
+        } else if (colDiff == -2) {
+            int row = move.getStartPosition().getRow();
+            ChessPosition rookStart = board.getGridPosition(row, 1);
+            ChessPosition rookEnd = board.getGridPosition(row, 4);
+            ChessPiece rook = rookStart.getOccupied();
+            board.addPiece(rookEnd, rook);
+            rookEnd.getOccupied().setMoved(true);
+            rookStart.setOccupied(null);
+        }
     }
 
     /**
@@ -198,6 +271,7 @@ public class ChessGame {
         return (teamColor == TeamColor.WHITE) ? TeamColor.BLACK : TeamColor.WHITE;
     }
 
+
     /**
      * Sets this game's chessboard with a given board
      *
@@ -216,10 +290,19 @@ public class ChessGame {
         return this.board;
     }
 
+    public ChessMove getLastMove() {
+        return lastMove;
+    }
+
+    public void setLastMove(ChessMove lastMove) {
+        this.lastMove = lastMove;
+    }
+
     public ChessGame copy() {
         ChessGame copy = new ChessGame();
         copy.setBoard(board.copy());
         copy.setTeamTurn(getTeamTurn());
+        copy.setLastMove(lastMove);
         return copy;
     }
 

@@ -9,20 +9,28 @@ public class MoveCalculator {
     private ChessPosition myPosition;
     private ChessPiece piece;
     private Collection<ChessMove> moves;
+    private ChessGame game;
 
     public MoveCalculator(ChessBoard board, ChessPosition myPosition, ChessPiece piece) {
         setBoard(board);
         setMyPosition(myPosition);
         setPiece(piece);
         setMoves(new ArrayList<>());
+        this.game = game;
     }
 
     public Collection<ChessMove> getKingMoves() {
         int[][] directions = {{-1, 0}, {-1, 1}, {0, 1}, {1, 1}, {1, 0}, {1, -1}, {0, -1}, {-1, -1}};
         moveByDirection(directions);
-//        if (canCastle()) {
-//            castle();
-//        }
+        if (!piece.isMoved() && myPosition.getColumn() == 5) {
+            int row = myPosition.getRow();
+            if (canCastleQueenside(row)) {
+                moves.add(new ChessMove(myPosition, board.getGridPosition(row, 3), null));
+            }
+            if (canCastleKingside(row)) {
+                moves.add(new ChessMove(myPosition, board.getGridPosition(row, 7), null));
+            }
+        }
         return moves;
     }
 
@@ -46,9 +54,6 @@ public class MoveCalculator {
     public Collection<ChessMove> getRookMoves() {
         int[][] directions = {{-1, 0}, {1, 0}, {0, -1}, {0, 1}};
         slideByDirection(directions);
-//        if (canCastle()) {
-//            castle();
-//        }
         return moves;
     }
     public Collection<ChessMove> getPawnMoves() {
@@ -56,6 +61,7 @@ public class MoveCalculator {
         int direction = (getPiece().getTeamColor() == ChessGame.TeamColor.WHITE) ? 1 : -1;
         int startRow = (getPiece().getTeamColor() == ChessGame.TeamColor.WHITE) ? 2 : 7;
         int promotionRow = (getPiece().getTeamColor() == ChessGame.TeamColor.WHITE) ? 8 : 1;
+        int enPassantRow = (getPiece().getTeamColor() == ChessGame.TeamColor.WHITE) ? 5 : 4;
         int row = myPosition.getRow();
         int column = myPosition.getColumn();
 
@@ -76,8 +82,9 @@ public class MoveCalculator {
         }
 
         // capture left
-        if (column > 1 && board.getGridPosition(row + direction, column - 1).getOccupied() != null) {
-            if (board.getGridPosition(row + direction, column - 1).getOccupied().getTeamColor() != getPiece().getTeamColor()){
+        if (column > 1) {
+            ChessPiece leftTarget = board.getGridPosition(row + direction, column - 1).getOccupied();
+            if (leftTarget != null && leftTarget.getTeamColor() != getPiece().getTeamColor()) {
                 if (row + direction == promotionRow) {
                     addPromotions(myPosition, board.getGridPosition(row + direction, column - 1), moves);
                 } else {
@@ -87,12 +94,32 @@ public class MoveCalculator {
         }
 
         // capture right
-        if (column < 8 && board.getGridPosition(row + direction, column + 1).getOccupied() != null){
-            if (board.getGridPosition(row + direction, column + 1).getOccupied().getTeamColor() != getPiece().getTeamColor()){
+        if (column < 8) {
+            ChessPiece rightTarget = board.getGridPosition(row + direction, column + 1).getOccupied();
+            if (rightTarget != null && rightTarget.getTeamColor() != getPiece().getTeamColor()) {
                 if (row + direction == promotionRow) {
                     addPromotions(myPosition, board.getGridPosition(row + direction, column + 1), moves);
                 } else {
                     moves.add(new ChessMove(myPosition, board.getGridPosition(row + direction, column + 1), null));
+                }
+            }
+        }
+
+        // en passant
+        if (row == enPassantRow && game != null && game.getLastMove() != null) {
+            ChessMove lastMove = game.getLastMove();
+            // Check if last move was a pawn double-move
+            ChessPiece lastMovedPiece = board.getPiece(lastMove.getEndPosition());
+            if (lastMovedPiece != null
+                    && lastMovedPiece.getPieceType() == ChessPiece.PieceType.PAWN
+                    && lastMovedPiece.getTeamColor() != getPiece().getTeamColor()) {
+                int rowDiff = Math.abs(lastMove.getEndPosition().getRow() - lastMove.getStartPosition().getRow());
+                if (rowDiff == 2) {
+                    int enemyCol = lastMove.getEndPosition().getColumn();
+                    if (Math.abs(enemyCol - column) == 1 && lastMove.getEndPosition().getRow() == row) {
+                        ChessPosition captureSquare = board.getGridPosition(row + direction, enemyCol);
+                        moves.add(new ChessMove(myPosition, captureSquare, null));
+                    }
                 }
             }
         }
@@ -142,16 +169,31 @@ public class MoveCalculator {
         }
     }
 
-//    private boolean canCastle() {
-//        if (!piece.isMoved()) {
-//
-//        }
-//        return false;
-//    }
-//
-//    private void castle() {
-//
-//    }
+    private boolean canCastleQueenside(int row) {
+        ChessPosition rookPosition = board.getGridPosition(row, 1);
+        if (rookPosition.getOccupied() == null || rookPosition.getOccupied().isMoved()) {
+            return false;
+        }
+        for (int col = 2; col <= 4; col++) {
+            if (board.getGridPosition(row, col).getOccupied() != null) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    private boolean canCastleKingside(int row) {
+        ChessPosition rookPosition = board.getGridPosition(row, 8);
+        if (rookPosition.getOccupied() == null || rookPosition.getOccupied().isMoved()) {
+            return false;
+        }
+        for (int col = 6; col <= 7; col++) {
+            if (board.getGridPosition(row, col).getOccupied() != null) {
+                return false;
+            }
+        }
+        return true;
+    }
 
     private void addPromotions(ChessPosition from, ChessPosition to, Collection<ChessMove> moves) {
         moves.add(new ChessMove(from, to, ChessPiece.PieceType.QUEEN));

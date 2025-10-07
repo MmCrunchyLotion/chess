@@ -101,5 +101,3 @@ public class ChessPiece {
         return Objects.hash(team, piece);
     }
 }
-
-
