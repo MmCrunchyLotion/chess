@@ -9,14 +9,14 @@ import java.util.Objects;
  * signature of the existing methods.
  */
 public class ChessPosition {
-    private int row;
-    private int col;
+    private final int row;
+    private final int column;
     private ChessPiece occupiedBy;
 
-    public ChessPosition(int row, int col) {
-        setRow(row);
-        setCol(col);
-        setOccupied(null);
+    public ChessPosition(int row, int column) {
+        this.row = row;
+        this.column = column;
+        this.occupiedBy = null;
     }
 
     /**
@@ -32,17 +32,14 @@ public class ChessPosition {
      * 1 codes for the left row
      */
     public int getColumn() {
-        return this.col;
+        return this.column;
     }
 
-    public void setRow(int row) {
-        this.row = row;
-    }
 
-    public void setCol(int col) {
-        this.col = col;
-    }
-
+    /**
+     * Setter places a piece onto this position
+     * Getter identifies the piece placed on this position
+     */
     public void setOccupied(ChessPiece occupiedBy) {
         this.occupiedBy = occupiedBy;
     }
@@ -52,7 +49,7 @@ public class ChessPosition {
     }
 
     public ChessPosition copy() {
-        ChessPosition copy = new ChessPosition(this.row, this.col);
+        ChessPosition copy = new ChessPosition(this.row, this.column);
         if (this.occupiedBy != null) {
             copy.setOccupied(this.occupiedBy.copy());
         } else {
@@ -68,11 +65,11 @@ public class ChessPosition {
             return false;
         }
         ChessPosition that = (ChessPosition) o;
-        return row == that.row && col == that.col;
+        return row == that.row && column == that.column;
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(row, col);
+        return Objects.hash(row, column);
     }
 }

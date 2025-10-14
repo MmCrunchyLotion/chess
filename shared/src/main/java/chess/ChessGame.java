@@ -15,12 +15,11 @@ public class ChessGame {
 
     private ChessBoard board;
     private ChessGame.TeamColor TeamTurn;
-    private ChessMove lastMove = null;
 
     public ChessGame() {
-        setBoard(new ChessBoard());
+        this.board = new ChessBoard();
         board.resetBoard();
-        setTeamTurn(TeamColor.WHITE);
+        this.TeamTurn = TeamColor.WHITE;
     }
 
     /**
@@ -74,11 +73,11 @@ public class ChessGame {
             if (piece != null && piece.getPieceType() == ChessPiece.PieceType.KING) {
                 int colDiff = move.getEndPosition().getColumn() - move.getStartPosition().getColumn();
                 if (Math.abs(colDiff) == 2) {
-                    ChessGame intermediateGame = castlingInCheckHandler(team, move, colDiff);
-                    if (intermediateGame == null) {
+                    ChessGame castleCheckGame = castlingInCheckHandler(team, move, colDiff);
+                    if (castleCheckGame == null) {
                         continue;
                     }
-                    if (intermediateGame.isInCheck(team)) {
+                    if (castleCheckGame.isInCheck(team)) {
                         continue;
                     }
                 }
@@ -122,7 +121,7 @@ public class ChessGame {
         Collection<ChessMove> validMoves = validMoves(startPosition);
         if (validMoves.contains(move)) {
             executeMove(board, move);
-            lastMove = move;
+            board.setLastMove(move);
             TeamTurn = (getTeamTurn() == TeamColor.WHITE) ? TeamColor.BLACK : TeamColor.WHITE;
         } else {
             throw new InvalidMoveException();
@@ -144,16 +143,15 @@ public class ChessGame {
         } else {
             board.addPiece(endPosition, new ChessPiece(piece.getTeamColor(), move.getPromotionPiece()));
         }
-        if (endPosition.getOccupied() != null) {
-            if (!endPosition.getOccupied().isMoved()) {
-                endPosition.getOccupied().setMoved(true);
-            }
+        if (!piece.isMoved()) {
+            piece.setMoved(true);
         }
         startPosition.setOccupied(null);
     }
 
     private static void enPassantHandler(ChessBoard board, ChessMove move, ChessPosition endPosition, ChessPosition startPosition) {
         int colDiff = Math.abs(move.getEndPosition().getColumn() - move.getStartPosition().getColumn());
+
         if (colDiff == 1 && endPosition.getOccupied() == null) {
             int capturedPawnRow = startPosition.getRow();
             int capturedPawnCol = endPosition.getColumn();
@@ -290,19 +288,10 @@ public class ChessGame {
         return this.board;
     }
 
-    public ChessMove getLastMove() {
-        return lastMove;
-    }
-
-    public void setLastMove(ChessMove lastMove) {
-        this.lastMove = lastMove;
-    }
-
     public ChessGame copy() {
         ChessGame copy = new ChessGame();
         copy.setBoard(board.copy());
         copy.setTeamTurn(getTeamTurn());
-        copy.setLastMove(lastMove);
         return copy;
     }
 

@@ -13,6 +13,7 @@ import java.util.Objects;
 public class ChessBoard {
 
     private List<ChessPosition> board;
+    private ChessMove lastMove = null;
 
     public ChessBoard() {
         setBoard(new ArrayList<>());
@@ -25,10 +26,9 @@ public class ChessBoard {
      * @param piece    the piece to add
      */
     public void addPiece(ChessPosition position, ChessPiece piece) {
-        for (ChessPosition p : getBoard()) {
-            if (p.equals(position)) {
-                p.setOccupied(piece);
-                return;
+        for (ChessPosition boardPosition : board) {
+            if (boardPosition.equals(position)) {
+                boardPosition.setOccupied(piece);
             }
         }
     }
@@ -41,9 +41,9 @@ public class ChessBoard {
      * position
      */
     public ChessPiece getPiece(ChessPosition position) {
-        for (ChessPosition p : board) {
-            if (p.equals(position)) {
-                return p.getOccupied();
+        for (ChessPosition boardPosition : board) {
+            if (boardPosition.equals(position)) {
+                return boardPosition.getOccupied();
             }
         }
         return null;
@@ -84,9 +84,9 @@ public class ChessBoard {
     }
 
     public ChessPosition getPosition(ChessPosition position) {
-        for (ChessPosition p : board) {
-            if (p.equals(position)) {
-                return p;
+        for (ChessPosition boardPosition : board) {
+            if (boardPosition.equals(position)) {
+                return boardPosition;
             }
         }
         return null;
@@ -109,20 +109,27 @@ public class ChessBoard {
                     squares.add(square);
                 }
             }
-            this.board = squares;
-        } else {
-            this.board = squares;
         }
+        this.board = squares;
+    }
+
+    public ChessMove getLastMove() {
+        return lastMove;
+    }
+
+    public void setLastMove(ChessMove lastMove) {
+        this.lastMove = lastMove;
     }
 
     public ChessBoard copy() {
         ChessBoard clone = new ChessBoard();
-        ArrayList<ChessPosition> copies = new ArrayList<>();
+        List<ChessPosition> copies = new ArrayList<>();
         for (ChessPosition p : board) {
             ChessPosition copy = p.copy();
             copies.add(copy);
         }
         clone.setBoard(copies);
+        clone.setLastMove(lastMove);
         return clone;
     }
 

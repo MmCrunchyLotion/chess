@@ -11,14 +11,14 @@ import java.util.Objects;
  */
 public class ChessPiece {
 
-    private ChessGame.TeamColor team;
+    private final ChessGame.TeamColor team;
     private PieceType piece;
     private boolean moved;
 
     public ChessPiece(ChessGame.TeamColor pieceColor, ChessPiece.PieceType type) {
-        setTeam(pieceColor);
-        setPiece(type);
-        setMoved(false);
+        this.team = pieceColor;
+        this.piece = type;
+        this.moved = false;
     }
 
     /**
@@ -63,10 +63,6 @@ public class ChessPiece {
             case ROOK -> new MoveCalculator(board,myPosition,this).getRookMoves();
             case PAWN -> new MoveCalculator(board,myPosition,this).getPawnMoves();
         };
-    }
-
-    public void setTeam(ChessGame.TeamColor team) {
-        this.team = team;
     }
 
     public void setPiece(PieceType piece) {
