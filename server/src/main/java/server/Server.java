@@ -6,7 +6,7 @@ import exception.ResponseException;
 import chess.ChessGame;
 import io.javalin.*;
 import io.javalin.http.Context;
-import service.*;
+import services.*;
 import models.*;
 
 public class Server {
@@ -43,30 +43,34 @@ public class Server {
     }
 
     private void addUser(Context ctx) throws ResponseException, DataAccessException {
+//        I may need to have the result passed through an exception handler
         UserData givenUser = new Gson().fromJson(ctx.body(), UserData.class);
-        NewUserService newUser = new NewUserService(givenUser);
-        String message = newUser.toString();
+        RegisterUser registerRequest = new RegisterUser(givenUser);
+        String message = registerRequest.toString();
         ctx.result(message);
     }
 
-    private void login(Context ctx) {
+    private void login(Context ctx) throws ResponseException, DataAccessException {
+        UserData givenUser = new Gson().fromJson(ctx.body(), UserData.class);
+        Login loginRequest = new Login(givenUser);
+        String message = loginRequest.toString();
+        ctx.result(message);
+    }
+
+    private void logout(Context ctx) throws ResponseException, DataAccessException {
 
     }
 
-    private void logout(Context ctx) {
+    private void listGames(Context ctx) throws ResponseException, DataAccessException {
 
     }
 
-    private void listGames(Context ctx) {
-
-    }
-
-    private void newGame(Context ctx) {
+    private void newGame(Context ctx) throws ResponseException, DataAccessException {
         ChessGame game = new Gson().fromJson(ctx.body(), ChessGame.class);
 
     }
 
-    private void clear(Context ctx) {
+    private void clear(Context ctx) throws ResponseException, DataAccessException {
 
     }
 }

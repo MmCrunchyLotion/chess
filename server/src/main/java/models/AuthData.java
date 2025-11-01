@@ -1,5 +1,7 @@
 package models;
 
+import com.google.gson.Gson;
+
 import java.util.UUID;
 
 public class AuthData {
@@ -14,5 +16,10 @@ public class AuthData {
 
     public static String generateToken() {
         return UUID.randomUUID().toString();
+    }
+
+    @Override
+    public String toString() {
+        return new Gson().toJson(this);
     }
 }
