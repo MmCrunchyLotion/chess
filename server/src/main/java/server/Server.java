@@ -1,10 +1,13 @@
 package server;
+
 import com.google.gson.Gson;
+import dataaccess.DataAccessException;
 import exception.ResponseException;
 import chess.ChessGame;
 import io.javalin.*;
 import io.javalin.http.Context;
-import service.ChessService;
+import service.*;
+import models.*;
 
 public class Server {
 
@@ -39,9 +42,11 @@ public class Server {
         ctx.result(ex.toJson());
     }
 
-    private void addUser(Context ctx) {
-        User user = new Gson().fromJson(ctx.body(), User.class);
-        ctx.result(new Gson().toJson(user));
+    private void addUser(Context ctx) throws ResponseException, DataAccessException {
+        UserData givenUser = new Gson().fromJson(ctx.body(), UserData.class);
+        NewUserService newUser = new NewUserService(givenUser);
+        String message = newUser.toString();
+        ctx.result(message);
     }
 
     private void login(Context ctx) {
