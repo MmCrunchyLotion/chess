@@ -58,7 +58,10 @@ public class Server {
     }
 
     private void logout(Context ctx) throws ResponseException, DataAccessException {
-
+        AuthData auth = new Gson().fromJson(ctx.body(), AuthData.class);
+        Logout logoutRequest = new Logout(auth);
+//        String message = null;
+//        ctx.result(message);
     }
 
     private void listGames(Context ctx) throws ResponseException, DataAccessException {
