@@ -9,6 +9,8 @@ import io.javalin.http.Context;
 import services.*;
 import models.*;
 
+import java.util.Collection;
+
 public class Server {
 
 //    private final ChessService service;
@@ -58,19 +60,26 @@ public class Server {
     }
 
     private void logout(Context ctx) throws ResponseException, DataAccessException {
-        AuthData auth = new Gson().fromJson(ctx.body(), AuthData.class);
+        AuthData auth = new Gson().fromJson(ctx.header("Authorization"), AuthData.class);
         Logout logoutRequest = new Logout(auth);
+        logoutRequest.logout();
 //        String message = null;
 //        ctx.result(message);
     }
 
     private void listGames(Context ctx) throws ResponseException, DataAccessException {
-
+        AuthData auth = new Gson().fromJson(ctx.header("Authorization"), AuthData.class);
+        ListGamesService listGamesService = new ListGamesService(auth);
+        Collection<GameData> games = listGamesService.list();
+        ctx.result(games.toString());
     }
 
     private void newGame(Context ctx) throws ResponseException, DataAccessException {
-        ChessGame game = new Gson().fromJson(ctx.body(), ChessGame.class);
-
+        AuthData auth = new Gson().fromJson(ctx.header("Authorization"), AuthData.class);
+        GameData game = new Gson().fromJson(ctx.body(), GameData.class);
+        CreateGameService createGameService = new CreateGameService(auth, game);
+        createGameService.addGame();
+        ctx.result(game.toString());
     }
 
     private void clear(Context ctx) throws ResponseException, DataAccessException {

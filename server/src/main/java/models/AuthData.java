@@ -18,6 +18,14 @@ public class AuthData {
         return UUID.randomUUID().toString();
     }
 
+    public String getAuth() {
+        return auth;
+    }
+
+    public String getUsername() {
+        return username;
+    }
+
     @Override
     public String toString() {
         return new Gson().toJson(this);
