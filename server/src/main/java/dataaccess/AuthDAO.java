@@ -20,4 +20,9 @@ public interface AuthDAO {
 //        remove auth from DB
         throw new DataAccessException("RemoveAuth called. No DB reached");
     }
+
+    static void clear() throws DataAccessException {
+//        Clear all auth tokens
+        throw new DataAccessException("AuthClear called. No DB reached");
+    }
 }

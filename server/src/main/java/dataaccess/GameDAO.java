@@ -17,4 +17,19 @@ public interface GameDAO {
         throw new DataAccessException("CreateGame called. No DB reached");
     }
 
+    static GameData findGame(int gameID) throws DataAccessException {
+//        Find a game within the DB
+//        return the gameData
+        throw new DataAccessException("findGame called. No DB reached");
+    }
+
+    static void setUser(String username, String Color, int gameID) throws DataAccessException {
+//        Update game with given ID to store username as matching team color
+        throw new DataAccessException("SetUser called. No DB reached");
+    }
+
+    static void clear() throws DataAccessException {
+//        Clear all games
+        throw new DataAccessException("GameClear called. No DB reached");
+    }
 }

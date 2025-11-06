@@ -26,6 +26,7 @@ public class Server {
                 .delete("/session", this::logout)
                 .get("/game", this::listGames)
                 .post("/game", this::newGame)
+                .put("/game", this::joinGame)
                 .delete("/db", this::clear)
                 .exception(ResponseException.class, this::exceptionHandler);
     }
@@ -79,10 +80,18 @@ public class Server {
         GameData game = new Gson().fromJson(ctx.body(), GameData.class);
         CreateGameService createGameService = new CreateGameService(auth, game);
         createGameService.addGame();
-        ctx.result(game.toString());
+        ctx.result(game.toString()); // This may need to be changed to return only the gameID
+    }
+
+    private void joinGame(Context ctx) throws ResponseException, DataAccessException {
+        AuthData auth = new Gson().fromJson(ctx.header("Authorization"), AuthData.class);
+        GameData game = new Gson().fromJson(ctx.body(), GameData.class); // TODO: Figure out how to get the PlayerColor
+        JoinGameService joinGameService = new JoinGameService(auth, game);
+        joinGameService.addPlayer(game, auth.getUsername(), playerColor);
     }
 
     private void clear(Context ctx) throws ResponseException, DataAccessException {
+        ClearDBService clearDBService = new ClearDBService();
 
     }
 }

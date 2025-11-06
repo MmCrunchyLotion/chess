@@ -25,12 +25,12 @@ public class GameData {
         this.gameID = gameID;
     }
 
-    public void setWhiteUsername(String whiteUsername) {
-        this.whiteUsername = whiteUsername;
+    public String getWhiteUsername() {
+        return whiteUsername;
     }
 
-    public void setBlackUsername(String blackUsername) {
-        this.blackUsername = blackUsername;
+    public String getBlackUsername() {
+        return blackUsername;
     }
 
     @Override

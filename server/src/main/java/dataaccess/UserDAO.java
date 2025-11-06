@@ -14,4 +14,9 @@ public interface UserDAO {
 //        Add new user to the database
         throw new DataAccessException("CreateUser called. No DB reached");
     }
+
+    static void clear() throws DataAccessException {
+//        Clear all Users
+        throw new DataAccessException("UserClear called. No DB reached");
+    }
 }

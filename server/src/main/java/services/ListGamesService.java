@@ -8,15 +8,12 @@ import dataaccess.AuthDAO;
 import dataaccess.GameDAO;
 import models.*;
 
-public class ListGamesService {
+public class ListGamesService extends Service {
 
     private Collection<GameData> games;
 
     public ListGamesService(AuthData auth) throws ResponseException, DataAccessException {
-        AuthDAO.getAuth(auth);
-        if (auth == null) {
-            throw new ResponseException(Unauthorized, "No user associated with token received");
-        }
+        checkAuth(auth);
     }
 
     public Collection<GameData> list() throws DataAccessException {

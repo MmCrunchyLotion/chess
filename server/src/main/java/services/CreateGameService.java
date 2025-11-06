@@ -1,6 +1,5 @@
 package services;
 
-import java.util.Collection;
 import exception.ResponseException;
 import static exception.ResponseException.Code.*;
 import dataaccess.DataAccessException;
@@ -8,19 +7,19 @@ import dataaccess.AuthDAO;
 import dataaccess.GameDAO;
 import models.*;
 
-public class CreateGameService {
+public class CreateGameService extends Service{
 
     private GameData game;
 
     public CreateGameService(AuthData auth, GameData game) throws ResponseException, DataAccessException {
         this.game = game;
-        AuthDAO.getAuth(auth);
-        if (auth == null) {
-            throw new ResponseException(Unauthorized, "No user associated with token received");
-        }
+        checkAuth(auth);
     }
 
-    public void addGame() throws DataAccessException {
+    public void addGame() throws ResponseException, DataAccessException {
+        if (this.game.getGameName() == null) {
+            throw new ResponseException(ClientError, "No Game name received");
+        }
         game.setGameID(GameDAO.createGame(this.game.getGameName()));
     }
 

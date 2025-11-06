@@ -6,16 +6,12 @@ import dataaccess.DataAccessException;
 import dataaccess.AuthDAO;
 import models.*;
 
-public class Logout {
+public class Logout extends Service {
 
     private AuthData auth;
 
     public Logout(AuthData auth) throws ResponseException, DataAccessException {
-        this.auth = auth;
-        AuthDAO.getAuth(auth);
-        if (auth == null) {
-            throw new ResponseException(Unauthorized, "No user associated with token received");
-        }
+        checkAuth(auth);
     }
 
     public void logout() throws DataAccessException {
