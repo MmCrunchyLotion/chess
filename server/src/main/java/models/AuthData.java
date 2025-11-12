@@ -6,11 +6,11 @@ import java.util.UUID;
 
 public class AuthData {
 
-    String auth;
-    String username;
+    private String username;
+    private String authToken;
 
     public AuthData(String username) {
-        this.auth = generateToken();
+        this.authToken = generateToken();
         this.username = username;
     }
 
@@ -18,8 +18,8 @@ public class AuthData {
         return UUID.randomUUID().toString();
     }
 
-    public String getAuth() {
-        return auth;
+    public String getAuthToken() {
+        return authToken;
     }
 
     public String getUsername() {

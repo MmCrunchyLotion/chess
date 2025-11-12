@@ -5,10 +5,10 @@ import dataaccess.DataAccessException;
 
 public class ClearDBService {
 
-    public ClearDBService() throws DataAccessException {
+    public ClearDBService(AuthDAO mockAuthDAO, UserDAO mockUserDAO, GameDAO mockGameDAO) {
 //        Clear the database
-        AuthDAO.clear();
-        GameDAO.clear();
-        UserDAO.clear();
+        mockAuthDAO.clear();
+        mockUserDAO.clear();
+        mockGameDAO.clear();
     }
 }

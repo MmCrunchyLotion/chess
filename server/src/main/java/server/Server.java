@@ -2,8 +2,8 @@ package server;
 
 import com.google.gson.Gson;
 import dataaccess.DataAccessException;
+import dataaccess.*;
 import exception.ResponseException;
-import chess.ChessGame;
 import io.javalin.*;
 import io.javalin.http.Context;
 import services.*;
@@ -21,11 +21,11 @@ public class Server {
     public Server() {
 
         javalin = Javalin.create(config -> config.staticFiles.add("web"))
-                .post("/user", this::addUser)
+                .post("/user", this::registerUser)
                 .post("/session", this::login)
                 .delete("/session", this::logout)
                 .get("/game", this::listGames)
-                .post("/game", this::newGame)
+                .post("/game", this::createGame)
                 .put("/game", this::joinGame)
                 .delete("/db", this::clear)
                 .exception(ResponseException.class, this::exceptionHandler);
@@ -45,53 +45,71 @@ public class Server {
         ctx.result(ex.toJson());
     }
 
-    private void addUser(Context ctx) throws ResponseException, DataAccessException {
-//        I may need to have the result passed through an exception handler
+    private void registerUser(Context ctx) {
         UserData givenUser = new Gson().fromJson(ctx.body(), UserData.class);
-        RegisterUser registerRequest = new RegisterUser(givenUser);
+        UserDAO mockUserDAO = new UserDAO();
+        AuthDAO mockAuthDAO = new AuthDAO();
+        RegisterUserService registerRequest = new RegisterUserService(givenUser, mockUserDAO, mockAuthDAO);
+        try {
+            registerRequest.register();
+        } catch (ResponseException ex) {
+            exceptionHandler(ex, ctx);
+        }
         String message = registerRequest.toString();
         ctx.result(message);
     }
 
-    private void login(Context ctx) throws ResponseException, DataAccessException {
+    private void login(Context ctx) throws ResponseException {
         UserData givenUser = new Gson().fromJson(ctx.body(), UserData.class);
-        Login loginRequest = new Login(givenUser);
+        UserDAO mockUserDAO = new UserDAO();
+        AuthDAO mockAuthDAO = new AuthDAO();
+        LoginService loginRequest = new LoginService(givenUser, mockUserDAO, mockAuthDAO);
+        loginRequest.login();
         String message = loginRequest.toString();
         ctx.result(message);
     }
 
-    private void logout(Context ctx) throws ResponseException, DataAccessException {
+    private void logout(Context ctx) throws ResponseException {
         AuthData auth = new Gson().fromJson(ctx.header("Authorization"), AuthData.class);
-        Logout logoutRequest = new Logout(auth);
+        AuthDAO mockAuthDAO = new AuthDAO();
+        LogoutService logoutRequest = new LogoutService(auth, mockAuthDAO);
         logoutRequest.logout();
 //        String message = null;
 //        ctx.result(message);
     }
 
-    private void listGames(Context ctx) throws ResponseException, DataAccessException {
+    private void listGames(Context ctx) throws ResponseException {
         AuthData auth = new Gson().fromJson(ctx.header("Authorization"), AuthData.class);
-        ListGamesService listGamesService = new ListGamesService(auth);
-        Collection<GameData> games = listGamesService.list();
+        AuthDAO mockAuthDAO = new AuthDAO();
+        GameDAO mockGameDAO = new GameDAO();
+        ListGamesService listGamesRequest = new ListGamesService(auth, mockAuthDAO, mockGameDAO);
+        Collection<GameData> games = listGamesRequest.list();
         ctx.result(games.toString());
     }
 
-    private void newGame(Context ctx) throws ResponseException, DataAccessException {
+    private void createGame(Context ctx) throws ResponseException {
         AuthData auth = new Gson().fromJson(ctx.header("Authorization"), AuthData.class);
         GameData game = new Gson().fromJson(ctx.body(), GameData.class);
-        CreateGameService createGameService = new CreateGameService(auth, game);
-        createGameService.addGame();
+        AuthDAO mockAuthDAO = new AuthDAO();
+        GameDAO mockGameDAO = new GameDAO();
+        CreateGameService createGameRequest = new CreateGameService(auth, game, mockAuthDAO, mockGameDAO);
+        createGameRequest.addGame();
         ctx.result(game.toString()); // This may need to be changed to return only the gameID
     }
 
     private void joinGame(Context ctx) throws ResponseException, DataAccessException {
         AuthData auth = new Gson().fromJson(ctx.header("Authorization"), AuthData.class);
-        GameData game = new Gson().fromJson(ctx.body(), GameData.class); // TODO: Figure out how to get the PlayerColor
-        JoinGameService joinGameService = new JoinGameService(auth, game);
-        joinGameService.addPlayer(game, auth.getUsername(), playerColor);
+        JoinBody join = new Gson().fromJson(ctx.body(), JoinBody.class);
+        AuthDAO mockAuthDAO = new AuthDAO();
+        GameDAO mockGameDAO = new GameDAO();
+        JoinGameService joinGameRequest = new JoinGameService(auth, join, mockAuthDAO, mockGameDAO);
+        joinGameRequest.addPlayer(auth.getUsername(), mockGameDAO);
     }
 
     private void clear(Context ctx) throws ResponseException, DataAccessException {
-        ClearDBService clearDBService = new ClearDBService();
-
+        UserDAO mockUserDAO = new UserDAO();
+        AuthDAO mockAuthDAO = new AuthDAO();
+        GameDAO mockGameDAO = new GameDAO();
+        ClearDBService clearDBRequest = new ClearDBService(mockAuthDAO, mockUserDAO, mockGameDAO);
     }
 }

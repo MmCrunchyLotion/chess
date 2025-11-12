@@ -10,17 +10,19 @@ import models.*;
 public class CreateGameService extends Service{
 
     private GameData game;
+    private GameDAO mockGameDAO;
 
-    public CreateGameService(AuthData auth, GameData game) throws ResponseException, DataAccessException {
+    public CreateGameService(AuthData auth, GameData game, AuthDAO mockAuthDAO, GameDAO mockGameDAO) throws ResponseException {
         this.game = game;
-        checkAuth(auth);
+        checkAuth(auth, mockAuthDAO);
+        this.mockGameDAO = mockGameDAO;
     }
 
-    public void addGame() throws ResponseException, DataAccessException {
+    public void addGame() throws ResponseException {
         if (this.game.getGameName() == null) {
             throw new ResponseException(ClientError, "No Game name received");
         }
-        game.setGameID(GameDAO.createGame(this.game.getGameName()));
+        game.setGameID(mockGameDAO.createGame(this.game.getGameName()));
     }
 
 }

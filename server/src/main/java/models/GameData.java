@@ -29,9 +29,17 @@ public class GameData {
         return whiteUsername;
     }
 
+    public void setWhiteUsername(String whiteUsername) {
+        this.whiteUsername = whiteUsername;
+    }
     public String getBlackUsername() {
         return blackUsername;
     }
+
+    public void setBlackUsername(String blackUsername) {
+        this.blackUsername = blackUsername;
+    }
+
 
     @Override
     public String toString() {

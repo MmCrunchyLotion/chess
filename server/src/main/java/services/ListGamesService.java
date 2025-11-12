@@ -2,8 +2,6 @@ package services;
 
 import java.util.Collection;
 import exception.ResponseException;
-import static exception.ResponseException.Code.*;
-import dataaccess.DataAccessException;
 import dataaccess.AuthDAO;
 import dataaccess.GameDAO;
 import models.*;
@@ -11,13 +9,15 @@ import models.*;
 public class ListGamesService extends Service {
 
     private Collection<GameData> games;
+    private GameDAO mockGameDAO;
 
-    public ListGamesService(AuthData auth) throws ResponseException, DataAccessException {
-        checkAuth(auth);
+    public ListGamesService(AuthData auth, AuthDAO mockAuthDAO, GameDAO mockGameDAO) throws ResponseException {
+        checkAuth(auth, mockAuthDAO);
+        this.mockGameDAO = mockGameDAO;
     }
 
-    public Collection<GameData> list() throws DataAccessException {
-        this.games = GameDAO.getDBGames();
+    public Collection<GameData> list() {
+        this.games = mockGameDAO.getDBGames();
         return this.games;
     }
 }
