@@ -16,9 +16,17 @@ public class Server {
 //    private final ChessService service;
     private final Javalin javalin;
 
+    private UserDAO mockUserDAO;
+    private AuthDAO mockAuthDAO;
+    private GameDAO mockGameDAO;
+
 //    public Server(ChessService service) {
 //        this.service = service;
     public Server() {
+
+        this.mockUserDAO = new UserDAO();
+        this.mockAuthDAO = new AuthDAO();
+        this.mockGameDAO = new GameDAO();
 
         javalin = Javalin.create(config -> config.staticFiles.add("web"))
                 .post("/user", this::registerUser)
@@ -47,69 +55,79 @@ public class Server {
 
     private void registerUser(Context ctx) {
         UserData givenUser = new Gson().fromJson(ctx.body(), UserData.class);
-        UserDAO mockUserDAO = new UserDAO();
-        AuthDAO mockAuthDAO = new AuthDAO();
-        RegisterUserService registerRequest = new RegisterUserService(givenUser, mockUserDAO, mockAuthDAO);
         try {
+            RegisterUserService registerRequest = new RegisterUserService(givenUser, mockUserDAO, mockAuthDAO);
             registerRequest.register();
+            String message = registerRequest.getAuth().toString();
+            ctx.result(message);
         } catch (ResponseException ex) {
             exceptionHandler(ex, ctx);
         }
-        String message = registerRequest.toString();
-        ctx.result(message);
     }
 
     private void login(Context ctx) throws ResponseException {
         UserData givenUser = new Gson().fromJson(ctx.body(), UserData.class);
-        UserDAO mockUserDAO = new UserDAO();
-        AuthDAO mockAuthDAO = new AuthDAO();
-        LoginService loginRequest = new LoginService(givenUser, mockUserDAO, mockAuthDAO);
-        loginRequest.login();
-        String message = loginRequest.toString();
-        ctx.result(message);
+        try {
+            LoginService loginRequest = new LoginService(givenUser, mockUserDAO, mockAuthDAO);
+            loginRequest.login(); // TODO: make sure that a user can only have one authToken
+            String message = loginRequest.getAuth().toString();
+            ctx.result(message);
+        } catch (ResponseException ex) {
+            exceptionHandler(ex, ctx);
+        }
     }
 
     private void logout(Context ctx) throws ResponseException {
-        AuthData auth = new Gson().fromJson(ctx.header("Authorization"), AuthData.class);
-        AuthDAO mockAuthDAO = new AuthDAO();
-        LogoutService logoutRequest = new LogoutService(auth, mockAuthDAO);
-        logoutRequest.logout();
-//        String message = null;
-//        ctx.result(message);
+        AuthData token = new AuthData("", ctx.header("Authorization"));
+        AuthData auth = mockAuthDAO.getAuth(token);
+        try {
+            LogoutService logoutRequest = new LogoutService(auth, mockAuthDAO);
+            logoutRequest.logout();
+            String message = "";
+            ctx.result(message);
+        } catch (ResponseException ex) {
+            exceptionHandler(ex, ctx);
+        }
     }
 
     private void listGames(Context ctx) throws ResponseException {
-        AuthData auth = new Gson().fromJson(ctx.header("Authorization"), AuthData.class);
-        AuthDAO mockAuthDAO = new AuthDAO();
-        GameDAO mockGameDAO = new GameDAO();
-        ListGamesService listGamesRequest = new ListGamesService(auth, mockAuthDAO, mockGameDAO);
-        Collection<GameData> games = listGamesRequest.list();
-        ctx.result(games.toString());
+        AuthData token = new AuthData("", ctx.header("Authorization"));
+        AuthData auth = mockAuthDAO.getAuth(token);
+        try {
+            ListGamesService listGamesRequest = new ListGamesService(auth, mockAuthDAO, mockGameDAO);
+            Collection<GameData> games = listGamesRequest.list();
+            ctx.result(games.toString());
+        } catch (ResponseException ex) {
+            exceptionHandler(ex, ctx);
+        }
     }
 
     private void createGame(Context ctx) throws ResponseException {
-        AuthData auth = new Gson().fromJson(ctx.header("Authorization"), AuthData.class);
+        AuthData token = new AuthData("", ctx.header("Authorization"));
+        AuthData auth = mockAuthDAO.getAuth(token);
         GameData game = new Gson().fromJson(ctx.body(), GameData.class);
-        AuthDAO mockAuthDAO = new AuthDAO();
-        GameDAO mockGameDAO = new GameDAO();
-        CreateGameService createGameRequest = new CreateGameService(auth, game, mockAuthDAO, mockGameDAO);
-        createGameRequest.addGame();
-        ctx.result(game.toString()); // This may need to be changed to return only the gameID
+        try {
+            CreateGameService createGameRequest = new CreateGameService(auth, game, mockAuthDAO, mockGameDAO);
+            createGameRequest.addGame();
+            ctx.result(game.toString());
+        } catch (ResponseException ex) {
+            exceptionHandler(ex, ctx);
+        }
     }
 
     private void joinGame(Context ctx) throws ResponseException, DataAccessException {
-        AuthData auth = new Gson().fromJson(ctx.header("Authorization"), AuthData.class);
+        AuthData token = new AuthData("", ctx.header("Authorization"));
+        AuthData auth = mockAuthDAO.getAuth(token);
         JoinBody join = new Gson().fromJson(ctx.body(), JoinBody.class);
-        AuthDAO mockAuthDAO = new AuthDAO();
-        GameDAO mockGameDAO = new GameDAO();
-        JoinGameService joinGameRequest = new JoinGameService(auth, join, mockAuthDAO, mockGameDAO);
-        joinGameRequest.addPlayer(auth.getUsername(), mockGameDAO);
+        try {
+            JoinGameService joinGameRequest = new JoinGameService(auth, join, mockAuthDAO, mockGameDAO);
+            joinGameRequest.addPlayer(auth.getUsername(), mockGameDAO);
+        } catch (ResponseException ex) {
+            exceptionHandler(ex, ctx);
+        }
     }
 
     private void clear(Context ctx) throws ResponseException, DataAccessException {
-        UserDAO mockUserDAO = new UserDAO();
-        AuthDAO mockAuthDAO = new AuthDAO();
-        GameDAO mockGameDAO = new GameDAO();
         ClearDBService clearDBRequest = new ClearDBService(mockAuthDAO, mockUserDAO, mockGameDAO);
     }
 }

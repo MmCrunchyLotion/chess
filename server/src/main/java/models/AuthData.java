@@ -9,8 +9,12 @@ public class AuthData {
     private String username;
     private String authToken;
 
-    public AuthData(String username) {
-        this.authToken = generateToken();
+    public AuthData(String username, String authToken) {
+        if (authToken == null) {
+            this.authToken = generateToken();
+        } else {
+            this.authToken = authToken;
+        }
         this.username = username;
     }
 

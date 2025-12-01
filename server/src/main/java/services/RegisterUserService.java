@@ -21,12 +21,22 @@ public class RegisterUserService {
     }
 
     public void register() throws ResponseException {
-        if (mockUserDAO.getUser(user.getUsername()).getUsername().equals(user.getUsername())) {
+        UserData DBUser = mockUserDAO.getUser(user.getUsername());
+        String DBUsername = null;
+        if (DBUser != null) {
+            DBUsername = DBUser.getUsername();
+        }
+        String username = user.getUsername();
+        if (DBUser != null && DBUsername.equals(username)) {
             throw new ResponseException(AlreadyTaken, "Error: Username already taken.");
         } else {
             mockUserDAO.createUser(user);
-            this.auth = new AuthData(user.getUsername());
+            this.auth = new AuthData(user.getUsername(), null);
             mockAuthDAO.addAuth(auth);
         }
+    }
+
+    public AuthData getAuth() {
+        return auth;
     }
 }

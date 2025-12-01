@@ -14,9 +14,9 @@ public class AuthDAO {
     public AuthData addAuth(AuthData auth) {
 //        Add auth to DB
 //        Return auth
-        AuthData token = new AuthData(auth.getUsername());
-        tokens.addToken(token);
-        return token;
+//        AuthData token = new AuthData(auth.getUsername());
+        tokens.addToken(auth);
+        return auth;
     }
 
     public AuthData getAuth(AuthData auth) {
