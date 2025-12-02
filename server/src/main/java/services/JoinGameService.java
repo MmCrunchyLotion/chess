@@ -11,17 +11,19 @@ public class JoinGameService extends Service {
 
     private GameData game;
     private JoinBody join;
+    private String username;
 
     public JoinGameService(AuthData auth, JoinBody join, AuthDAO mockAuthDAO, GameDAO mockGameDAO) throws ResponseException {
         checkAuth(auth, mockAuthDAO);
         this.game = mockGameDAO.findGame(join.getGameID());
         this.join = join;
+        this.username = getUserByAuth(auth, mockAuthDAO);
         if (game == null) {
             throw new ResponseException(ClientError, "Error: Game not found");
         }
     }
 
-    public void addPlayer(String username, GameDAO mockGameDAO) throws ResponseException {
+    public void addPlayer(GameDAO mockGameDAO) throws ResponseException {
         String color = join.getPlayerColor();
         if (color == null || (!color.equals("WHITE") && !color.equals("BLACK"))) {
             throw new ResponseException(ClientError, "Error: bad request");
@@ -38,5 +40,4 @@ public class JoinGameService extends Service {
             mockGameDAO.setUser(username,"BLACK", game.getGameID());
         }
     }
-
 }

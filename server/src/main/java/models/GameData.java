@@ -1,8 +1,5 @@
 package models;
 
-import com.google.gson.Gson;
-import java.util.Map;
-
 public class GameData {
 
     private int gameID;
@@ -40,10 +37,5 @@ public class GameData {
 
     public void setBlackUsername(String blackUsername) {
         this.blackUsername = blackUsername;
-    }
-
-    @Override
-    public String toString() {
-        return new Gson().toJson(Map.of("gameID", gameID));
     }
 }

@@ -17,10 +17,11 @@ public class CreateGameService extends Service {
         checkAuth(auth, mockAuthDAO);
     }
 
-    public void addGame() throws ResponseException {
+    public GameData addGame() throws ResponseException {
         if (this.game.getGameName() == null) {
             throw new ResponseException(ClientError, "Error: No Game name received");
         }
         game.setGameID(mockGameDAO.createGame(this.game.getGameName()));
+        return game;
     }
 }

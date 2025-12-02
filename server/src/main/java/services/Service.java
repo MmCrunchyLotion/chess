@@ -18,6 +18,11 @@ public class Service {
         }
     }
 
+    public String getUserByAuth (AuthData auth, AuthDAO mockAuthDAO) {
+        AuthData authDB = mockAuthDAO.getAuthByToken(auth);
+        return authDB.getUsername();
+    }
+
     public void checkNullFields (UserData user) throws ResponseException {
         if (user == null || user.getUsername() == null || user.getPassword() == null) {
             throw new ResponseException(ClientError, "Error: missing required fields");

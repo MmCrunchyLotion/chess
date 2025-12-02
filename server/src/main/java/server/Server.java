@@ -91,8 +91,8 @@ public class Server {
         try {
             ListGamesService listGamesRequest = new ListGamesService(auth, mockAuthDAO, mockGameDAO);
             Collection<GameData> games = listGamesRequest.list();
-            String json = new Gson().toJson(Map.of("games", games));
-            ctx.result(json);
+            String message = new Gson().toJson(Map.of("games", games));
+            ctx.result(message);
         } catch (ResponseException ex) {
             exceptionHandler(ex, ctx);
         }
@@ -100,11 +100,12 @@ public class Server {
 
     private void createGame(Context ctx) {
         AuthData auth = new AuthData("", ctx.header("Authorization"));
-        GameData game = new Gson().fromJson(ctx.body(), GameData.class);
+        GameData gameBody = new Gson().fromJson(ctx.body(), GameData.class);
         try {
-            CreateGameService createGameRequest = new CreateGameService(auth, game, mockAuthDAO, mockGameDAO);
-            createGameRequest.addGame();
-            ctx.result(game.toString());
+            CreateGameService createGameRequest = new CreateGameService(auth, gameBody, mockAuthDAO, mockGameDAO);
+            GameData newGame = createGameRequest.addGame();
+            String message = new Gson().toJson(Map.of("gameID", newGame.getGameID()));
+            ctx.result(message);
         } catch (ResponseException ex) {
             exceptionHandler(ex, ctx);
         }
@@ -115,7 +116,7 @@ public class Server {
         JoinBody join = new Gson().fromJson(ctx.body(), JoinBody.class);
         try {
             JoinGameService joinGameRequest = new JoinGameService(auth, join, mockAuthDAO, mockGameDAO);
-            joinGameRequest.addPlayer(auth.getUsername(), mockGameDAO);
+            joinGameRequest.addPlayer(mockGameDAO);
         } catch (ResponseException ex) {
             exceptionHandler(ex, ctx);
         }
