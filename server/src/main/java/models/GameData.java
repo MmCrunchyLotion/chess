@@ -1,6 +1,7 @@
 package models;
 
 import com.google.gson.Gson;
+import java.util.Map;
 
 public class GameData {
 
@@ -41,9 +42,8 @@ public class GameData {
         this.blackUsername = blackUsername;
     }
 
-
     @Override
     public String toString() {
-        return new Gson().toJson(this);
+        return new Gson().toJson(Map.of("gameID", gameID));
     }
 }

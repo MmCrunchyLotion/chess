@@ -28,11 +28,12 @@ public class LoginService extends Service {
         } else {
             auth = mockAuthDAO.getAuthByUser(user.getUsername());
             if (auth != null) {
-                return auth;
+                auth.resetToken();
+            } else {
+                auth = new AuthData(user.getUsername(), null);
             }
-            this.auth = new AuthData(user.getUsername(), null);
-            mockAuthDAO.addAuth(auth);
         }
+        mockAuthDAO.addAuth(auth);
         return auth;
     }
 

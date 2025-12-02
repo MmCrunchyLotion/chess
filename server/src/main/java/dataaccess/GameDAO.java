@@ -33,7 +33,7 @@ public class GameDAO {
 //        Update game with given ID to store username as matching team color
         GameData game = games.findGame(gameID);
         if (color.equals("WHITE")) {
-            if (game.getWhiteUsername() != null) {
+            if (game.getWhiteUsername() == null) {
                 game.setWhiteUsername(username);
             }
         } else {

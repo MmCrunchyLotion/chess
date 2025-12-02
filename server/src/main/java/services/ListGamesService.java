@@ -12,8 +12,8 @@ public class ListGamesService extends Service {
     private GameDAO mockGameDAO;
 
     public ListGamesService(AuthData auth, AuthDAO mockAuthDAO, GameDAO mockGameDAO) throws ResponseException {
-        checkAuth(auth, mockAuthDAO);
         this.mockGameDAO = mockGameDAO;
+        checkAuth(auth, mockAuthDAO);
     }
 
     public Collection<GameData> list() {

@@ -4,12 +4,10 @@ import com.google.gson.Gson;
 
 public class JoinBody {
 
-//    private String authToken;
     private String playerColor;
     private int gameID;
 
-    public JoinBody(String authToken, String playerColor, int gameID) {
-//        this.authToken = authToken;
+    public JoinBody(String playerColor, int gameID) {
         this.playerColor = playerColor;
         this.gameID = gameID;
     }

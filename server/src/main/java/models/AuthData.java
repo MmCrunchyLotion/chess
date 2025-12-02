@@ -18,6 +18,10 @@ public class AuthData {
         this.username = username;
     }
 
+    public void resetToken() {
+        this.authToken = generateToken();
+    }
+
     public static String generateToken() {
         return UUID.randomUUID().toString();
     }

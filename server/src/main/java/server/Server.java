@@ -1,15 +1,14 @@
 package server;
 
 import com.google.gson.Gson;
-import dataaccess.DataAccessException;
 import dataaccess.*;
 import exception.ResponseException;
 import io.javalin.*;
 import io.javalin.http.Context;
 import services.*;
 import models.*;
-
 import java.util.Collection;
+import java.util.Map;
 
 public class Server {
 
@@ -82,8 +81,6 @@ public class Server {
         try {
             LogoutService logoutRequest = new LogoutService(auth, mockAuthDAO);
             logoutRequest.logout();
-            String message = "";
-            ctx.result(message);
         } catch (ResponseException ex) {
             exceptionHandler(ex, ctx);
         }
@@ -94,7 +91,8 @@ public class Server {
         try {
             ListGamesService listGamesRequest = new ListGamesService(auth, mockAuthDAO, mockGameDAO);
             Collection<GameData> games = listGamesRequest.list();
-            ctx.result(games.toString());
+            String json = new Gson().toJson(Map.of("games", games));
+            ctx.result(json);
         } catch (ResponseException ex) {
             exceptionHandler(ex, ctx);
         }
