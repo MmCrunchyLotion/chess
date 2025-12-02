@@ -22,9 +22,12 @@ public class AuthDAO {
     public AuthData getAuth(AuthData auth) {
 //        Find an auth from the DB
 //        Return auth
-        for (AuthData token : tokens.getTokens()) {
-            if (token.getAuthToken().equals(auth.getAuthToken())) {
-                return auth;
+        if (auth == null || auth.getAuthToken() == null) {
+            return null;
+        }
+        for (AuthData authDB : tokens.getTokens()) {
+            if (authDB.getAuthToken().equals(auth.getAuthToken())) {
+                return authDB;
             }
         }
         return null;
@@ -32,7 +35,18 @@ public class AuthDAO {
 
     public void removeAuth(AuthData auth) {
 //        remove auth from DB
-        tokens.removeToken(auth);
+        if (auth == null || auth.getAuthToken() == null) {
+            return;
+        }
+        AuthData toRemove = null;
+        for (AuthData authDB : tokens.getTokens()) {
+            if (authDB.getAuthToken().equals(auth.getAuthToken())) {
+                toRemove = authDB;
+            }
+        }
+        if (toRemove != null) {
+            tokens.removeToken(toRemove);
+        }
     }
 
     public void clear() {

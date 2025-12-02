@@ -7,20 +7,21 @@ import dataaccess.UserDAO;
 import dataaccess.AuthDAO;
 import models.*;
 
-public class LoginService {
+public class LoginService extends Service {
 
     private UserData user;
     private AuthData auth;
     private UserDAO mockUserDAO;
     private AuthDAO mockAuthDAO;
 
-    public LoginService(UserData user, UserDAO mockUserDAO, AuthDAO mockAuthDAO) {
+    public LoginService (UserData user, UserDAO mockUserDAO, AuthDAO mockAuthDAO) {
         this.user = user;
         this.mockUserDAO = mockUserDAO;
         this.mockAuthDAO = mockAuthDAO;
     }
 
     public AuthData login() throws ResponseException {
+        checkNullFields(user);
         UserData userDB = mockUserDAO.getUser(user.getUsername());
         if (userDB == null || !Objects.equals(user.getPassword(), userDB.getPassword())) {
             throw new ResponseException(Unauthorized, "Error: Incorrect username or password.");

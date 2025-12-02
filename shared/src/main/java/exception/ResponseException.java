@@ -1,6 +1,3 @@
-// Copied from PetShop, modify as needed
-
-
 package exception;
 
 import com.google.gson.Gson;

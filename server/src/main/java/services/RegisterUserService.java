@@ -7,7 +7,7 @@ import dataaccess.UserDAO;
 import dataaccess.AuthDAO;
 import models.*;
 
-public class RegisterUserService {
+public class RegisterUserService extends Service {
 
     private AuthData auth;
     private UserData user;
@@ -21,6 +21,7 @@ public class RegisterUserService {
     }
 
     public void register() throws ResponseException {
+        checkNullFields(user);
         UserData DBUser = mockUserDAO.getUser(user.getUsername());
         String DBUsername = null;
         if (DBUser != null) {

@@ -11,8 +11,8 @@ public class LogoutService extends Service {
 
     public LogoutService(AuthData auth, AuthDAO mockAuthDAO) throws ResponseException {
         this.mockAuthDAO = mockAuthDAO;
-        checkAuth(auth, mockAuthDAO);
         this.auth = auth;
+        checkAuth(auth, mockAuthDAO);
     }
 
     public void logout() {

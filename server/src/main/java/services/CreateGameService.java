@@ -7,7 +7,7 @@ import dataaccess.AuthDAO;
 import dataaccess.GameDAO;
 import models.*;
 
-public class CreateGameService extends Service{
+public class CreateGameService extends Service {
 
     private GameData game;
     private GameDAO mockGameDAO;
