@@ -26,10 +26,14 @@ public class LoginService extends Service {
         if (userDB == null || !Objects.equals(user.getPassword(), userDB.getPassword())) {
             throw new ResponseException(Unauthorized, "Error: Incorrect username or password.");
         } else {
+            auth = mockAuthDAO.getAuthByUser(user.getUsername());
+            if (auth != null) {
+                return auth;
+            }
             this.auth = new AuthData(user.getUsername(), null);
             mockAuthDAO.addAuth(auth);
-            return auth;
         }
+        return auth;
     }
 
     public AuthData getAuth() {

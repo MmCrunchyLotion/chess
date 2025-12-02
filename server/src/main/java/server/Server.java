@@ -1,7 +1,6 @@
 package server;
 
 import com.google.gson.Gson;
-import com.google.gson.JsonSyntaxException;
 import dataaccess.DataAccessException;
 import dataaccess.*;
 import exception.ResponseException;
@@ -66,23 +65,19 @@ public class Server {
         }
     }
 
-    private void login(Context ctx) throws ResponseException {
+    private void login(Context ctx) {
+        UserData givenUser = new Gson().fromJson(ctx.body(), UserData.class);
         try {
-            UserData givenUser = new Gson().fromJson(ctx.body(), UserData.class);
-            try {
-                LoginService loginRequest = new LoginService(givenUser, mockUserDAO, mockAuthDAO);
-                loginRequest.login(); // TODO: make sure that a user can only have one authToken
-                String message = loginRequest.getAuth().toString();
-                ctx.result(message);
-            } catch (ResponseException ex) {
-                exceptionHandler(ex, ctx);
-            }
-        } catch (com.google.gson.JsonSyntaxException e) {
-            exceptionHandler(new ResponseException(ResponseException.Code.ClientError, "Error: Incorrect username or password."), ctx);
+            LoginService loginRequest = new LoginService(givenUser, mockUserDAO, mockAuthDAO);
+            loginRequest.login(); // TODO: May need to make it so that a browser only allows for one user to be logged in at a time, but server allows for multiple users to be logged in simultaneously
+            String message = loginRequest.getAuth().toString();
+            ctx.result(message);
+        } catch (ResponseException ex) {
+            exceptionHandler(ex, ctx);
         }
     }
 
-    private void logout(Context ctx) throws ResponseException {
+    private void logout(Context ctx) {
         AuthData auth = new AuthData("", ctx.header("Authorization"));
         try {
             LogoutService logoutRequest = new LogoutService(auth, mockAuthDAO);
@@ -94,9 +89,8 @@ public class Server {
         }
     }
 
-    private void listGames(Context ctx) throws ResponseException {
-        AuthData token = new AuthData("", ctx.header("Authorization"));
-        AuthData auth = mockAuthDAO.getAuth(token);
+    private void listGames(Context ctx) {
+        AuthData auth = new AuthData("", ctx.header("Authorization"));
         try {
             ListGamesService listGamesRequest = new ListGamesService(auth, mockAuthDAO, mockGameDAO);
             Collection<GameData> games = listGamesRequest.list();
@@ -106,9 +100,8 @@ public class Server {
         }
     }
 
-    private void createGame(Context ctx) throws ResponseException {
-        AuthData token = new AuthData("", ctx.header("Authorization"));
-        AuthData auth = mockAuthDAO.getAuth(token);
+    private void createGame(Context ctx) {
+        AuthData auth = new AuthData("", ctx.header("Authorization"));
         GameData game = new Gson().fromJson(ctx.body(), GameData.class);
         try {
             CreateGameService createGameRequest = new CreateGameService(auth, game, mockAuthDAO, mockGameDAO);
@@ -119,9 +112,8 @@ public class Server {
         }
     }
 
-    private void joinGame(Context ctx) throws ResponseException, DataAccessException {
-        AuthData token = new AuthData("", ctx.header("Authorization"));
-        AuthData auth = mockAuthDAO.getAuth(token);
+    private void joinGame(Context ctx) {
+        AuthData auth = new AuthData("", ctx.header("Authorization"));
         JoinBody join = new Gson().fromJson(ctx.body(), JoinBody.class);
         try {
             JoinGameService joinGameRequest = new JoinGameService(auth, join, mockAuthDAO, mockGameDAO);
@@ -131,7 +123,7 @@ public class Server {
         }
     }
 
-    private void clear(Context ctx) throws ResponseException, DataAccessException {
+    private void clear(Context ctx) {
         ClearDBService clearDBRequest = new ClearDBService(mockAuthDAO, mockUserDAO, mockGameDAO);
     }
 }

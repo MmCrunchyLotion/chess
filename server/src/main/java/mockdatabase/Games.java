@@ -18,7 +18,7 @@ public class Games {
     }
 
     public int addGame(GameData game) {
-        game.setGameID(games.size());
+        game.setGameID(games.size() + 1);
         games.add(game);
         return game.getGameID();
     }

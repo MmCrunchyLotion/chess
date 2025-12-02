@@ -19,7 +19,7 @@ public class AuthDAO {
         return auth;
     }
 
-    public AuthData getAuth(AuthData auth) {
+    public AuthData getAuthByToken(AuthData auth) {
 //        Find an auth from the DB
 //        Return auth
         if (auth == null || auth.getAuthToken() == null) {
@@ -27,6 +27,15 @@ public class AuthDAO {
         }
         for (AuthData authDB : tokens.getTokens()) {
             if (authDB.getAuthToken().equals(auth.getAuthToken())) {
+                return authDB;
+            }
+        }
+        return null;
+    }
+
+    public AuthData getAuthByUser(String username) {
+        for (AuthData authDB : tokens.getTokens()) {
+            if (authDB.getUsername().equals(username)) {
                 return authDB;
             }
         }

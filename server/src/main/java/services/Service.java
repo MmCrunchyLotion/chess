@@ -9,7 +9,7 @@ import static exception.ResponseException.Code.*;
 public class Service {
 
     public void checkAuth (AuthData auth, AuthDAO mockAuthDAO) throws ResponseException {
-        AuthData authDB = mockAuthDAO.getAuth(auth);
+        AuthData authDB = mockAuthDAO.getAuthByToken(auth);
         if (auth == null|| auth.getAuthToken() == null) {
             throw new ResponseException(Unauthorized, "Error: unauthorized");
         }
