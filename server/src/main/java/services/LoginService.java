@@ -25,14 +25,8 @@ public class LoginService extends Service {
         UserData userDB = mockUserDAO.getUser(user.getUsername());
         if (userDB == null || !Objects.equals(user.getPassword(), userDB.getPassword())) {
             throw new ResponseException(Unauthorized, "Error: Incorrect username or password.");
-        } else {
-            auth = mockAuthDAO.getAuthByUser(user.getUsername());
-            if (auth != null) {
-                auth.resetToken();
-            } else {
-                auth = new AuthData(user.getUsername(), null);
-            }
         }
+        auth = new AuthData(user.getUsername(), null);
         mockAuthDAO.addAuth(auth);
         return auth;
     }

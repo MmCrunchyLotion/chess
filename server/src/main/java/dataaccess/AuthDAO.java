@@ -44,9 +44,6 @@ public class AuthDAO {
 
     public void removeAuth(AuthData auth) {
 //        remove auth from DB
-        if (auth == null || auth.getAuthToken() == null) {
-            return;
-        }
         AuthData toRemove = null;
         for (AuthData authDB : tokens.getTokens()) {
             if (authDB.getAuthToken().equals(auth.getAuthToken())) {

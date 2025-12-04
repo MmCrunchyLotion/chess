@@ -2,7 +2,6 @@ package services;
 
 import exception.ResponseException;
 import static exception.ResponseException.Code.*;
-import dataaccess.DataAccessException;
 import dataaccess.UserDAO;
 import dataaccess.AuthDAO;
 import models.*;
