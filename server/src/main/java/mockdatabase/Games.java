@@ -1,12 +1,12 @@
 package mockdatabase;
 
-import models.GameData;
 import java.util.ArrayList;
 import java.util.Collection;
+import models.GameData;
 
 public class Games {
 
-    private Collection<GameData> games;
+    private final Collection<GameData> games;
 
     public Games() {
         this.games = new ArrayList<>();

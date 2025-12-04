@@ -1,13 +1,13 @@
 package services;
 
-import exception.ResponseException;
 import dataaccess.AuthDAO;
+import exception.ResponseException;
 import models.*;
 
 public class LogoutService extends Service {
 
-    private AuthData auth;
-    private AuthDAO mockAuthDAO;
+    private final AuthData auth;
+    private final AuthDAO mockAuthDAO;
 
     public LogoutService(AuthData auth, AuthDAO mockAuthDAO) throws ResponseException {
         this.mockAuthDAO = mockAuthDAO;

@@ -4,8 +4,8 @@ import com.google.gson.Gson;
 
 public class JoinBody {
 
-    private String playerColor;
-    private int gameID;
+    private final String playerColor;
+    private final int gameID;
 
     public JoinBody(String playerColor, int gameID) {
         this.playerColor = playerColor;

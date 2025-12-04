@@ -1,15 +1,15 @@
 package services;
 
-import exception.ResponseException;
 import static exception.ResponseException.Code.*;
 import dataaccess.AuthDAO;
 import dataaccess.GameDAO;
+import exception.ResponseException;
 import models.*;
 
 public class CreateGameService extends Service {
 
-    private GameData game;
-    private GameDAO mockGameDAO;
+    private final GameData game;
+    private final GameDAO mockGameDAO;
 
     public CreateGameService(AuthData auth, GameData game, AuthDAO mockAuthDAO, GameDAO mockGameDAO) throws ResponseException {
         this.game = game;

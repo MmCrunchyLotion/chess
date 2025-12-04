@@ -5,7 +5,7 @@ public class GameData {
     private int gameID;
     private String whiteUsername;
     private String blackUsername;
-    private String gameName;
+    private final String gameName;
 
     public GameData(String gameName) {
         this.gameName = gameName;

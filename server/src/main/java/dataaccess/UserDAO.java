@@ -1,11 +1,11 @@
 package dataaccess;
 
-import models.*;
 import mockdatabase.*;
+import models.*;
 
 public class UserDAO {
 
-    private Users users;
+    private final Users users;
 
     public UserDAO() {
         this.users = new Users();

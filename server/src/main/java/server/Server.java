@@ -5,19 +5,19 @@ import dataaccess.*;
 import exception.ResponseException;
 import io.javalin.*;
 import io.javalin.http.Context;
-import services.*;
-import models.*;
 import java.util.Collection;
 import java.util.Map;
+import models.*;
+import services.*;
 
 public class Server {
 
 //    private final ChessService service;
     private final Javalin javalin;
 
-    private UserDAO mockUserDAO;
-    private AuthDAO mockAuthDAO;
-    private GameDAO mockGameDAO;
+    private final UserDAO mockUserDAO;
+    private final AuthDAO mockAuthDAO;
+    private final GameDAO mockGameDAO;
 
 //    public Server(ChessService service) {
 //        this.service = service;
@@ -123,6 +123,6 @@ public class Server {
     }
 
     private void clear(Context ctx) {
-        ClearDBService clearDBRequest = new ClearDBService(mockAuthDAO, mockUserDAO, mockGameDAO);
+        new ClearDBService(mockAuthDAO, mockUserDAO, mockGameDAO);
     }
 }

@@ -1,12 +1,12 @@
 package dataaccess;
 
-import models.*;
-import mockdatabase.*;
 import java.util.Collection;
+import mockdatabase.*;
+import models.*;
 
 public class GameDAO {
 
-    private Games games;
+    private final Games games;
 
     public GameDAO() {
         this.games = new Games();

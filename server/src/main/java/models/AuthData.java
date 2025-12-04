@@ -5,7 +5,7 @@ import java.util.UUID;
 
 public class AuthData {
 
-    private String username;
+    private final String username;
     private String authToken;
 
     public AuthData(String username, String authToken) {
@@ -15,10 +15,6 @@ public class AuthData {
             this.authToken = authToken;
         }
         this.username = username;
-    }
-
-    public void resetToken() {
-        this.authToken = generateToken();
     }
 
     public static String generateToken() {

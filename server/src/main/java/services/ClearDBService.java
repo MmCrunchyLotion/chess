@@ -1,7 +1,6 @@
 package services;
 
 import dataaccess.*;
-import dataaccess.DataAccessException;
 
 public class ClearDBService {
 

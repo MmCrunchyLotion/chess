@@ -1,17 +1,17 @@
 package services;
 
-import exception.ResponseException;
 import static exception.ResponseException.Code.*;
-import dataaccess.UserDAO;
 import dataaccess.AuthDAO;
+import dataaccess.UserDAO;
+import exception.ResponseException;
 import models.*;
 
 public class RegisterUserService extends Service {
 
     private AuthData auth;
-    private UserData user;
-    private UserDAO mockUserDAO;
-    private AuthDAO mockAuthDAO;
+    private final UserData user;
+    private final UserDAO mockUserDAO;
+    private final AuthDAO mockAuthDAO;
 
     public RegisterUserService(UserData user, UserDAO mockUserDAO, AuthDAO mockAuthDAO) {
         this.user = user;

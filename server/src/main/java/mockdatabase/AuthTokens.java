@@ -1,12 +1,12 @@
 package mockdatabase;
 
-import models.AuthData;
 import java.util.ArrayList;
 import java.util.Collection;
+import models.AuthData;
 
 public class AuthTokens {
 
-    private Collection<AuthData> tokens;
+    private final Collection<AuthData> tokens;
 
     public AuthTokens() {
         this.tokens = new ArrayList<>();

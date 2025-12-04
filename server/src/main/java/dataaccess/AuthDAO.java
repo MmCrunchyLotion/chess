@@ -1,22 +1,21 @@
 package dataaccess;
 
-import models.*;
 import mockdatabase.*;
+import models.*;
 
 public class AuthDAO {
 
-    private AuthTokens tokens;
+    private final AuthTokens tokens;
 
     public AuthDAO() {
         this.tokens = new AuthTokens();
     }
 
-    public AuthData addAuth(AuthData auth) {
+    public void addAuth(AuthData auth) {
 //        Add auth to DB
 //        Return auth
 //        AuthData token = new AuthData(auth.getUsername());
         tokens.addToken(auth);
-        return auth;
     }
 
     public AuthData getAuthByToken(AuthData auth) {
@@ -27,15 +26,6 @@ public class AuthDAO {
         }
         for (AuthData authDB : tokens.getTokens()) {
             if (authDB.getAuthToken().equals(auth.getAuthToken())) {
-                return authDB;
-            }
-        }
-        return null;
-    }
-
-    public AuthData getAuthByUser(String username) {
-        for (AuthData authDB : tokens.getTokens()) {
-            if (authDB.getUsername().equals(username)) {
                 return authDB;
             }
         }

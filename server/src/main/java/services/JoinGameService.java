@@ -1,17 +1,16 @@
 package services;
 
-import exception.ResponseException;
 import static exception.ResponseException.Code.*;
-import dataaccess.DataAccessException;
 import dataaccess.AuthDAO;
 import dataaccess.GameDAO;
+import exception.ResponseException;
 import models.*;
 
 public class JoinGameService extends Service {
 
-    private GameData game;
-    private JoinBody join;
-    private String username;
+    private final GameData game;
+    private final JoinBody join;
+    private final String username;
 
     public JoinGameService(AuthData auth, JoinBody join, AuthDAO mockAuthDAO, GameDAO mockGameDAO) throws ResponseException {
         checkAuth(auth, mockAuthDAO);

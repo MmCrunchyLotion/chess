@@ -1,12 +1,12 @@
 package mockdatabase;
 
-import models.UserData;
 import java.util.ArrayList;
 import java.util.Collection;
+import models.UserData;
 
 public class Users {
 
-    private Collection<UserData> users;
+    private final Collection<UserData> users;
 
     public Users() {
         this.users = new ArrayList<>();
