@@ -1,78 +1,113 @@
 package dataaccess;
 
+import models.GameData;
+import java.sql.*;
+import java.util.ArrayList;
 import java.util.Collection;
-import mockdatabase.*;
-import models.*;
 
-public class GameDAO {
+public class GameDAO extends MySqlDataAccess {
 
-    private final Games games;
+    private final String[] createStatements = {
+        """
+        CREATE TABLE IF NOT EXISTS game (
+            id int NOT NULL AUTO_INCREMENT,
+            whiteUserID int DEFAULT NULL,
+            blackUserID int DEFAULT NULL,
+            gameName varchar(256) NOT NULL,
+            PRIMARY KEY (id),
+            CONSTRAINT fk_white FOREIGN KEY (whiteUserID) REFERENCES user (id),
+            CONSTRAINT fk_black FOREIGN KEY (blackUserID) REFERENCES user (id)
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci
+        """
+    };
 
-    public GameDAO() {
-        this.games = new Games();
+    public GameDAO() throws DataAccessException {
+        configureDatabase(createStatements);
     }
 
-    public Collection<GameData> getDBGames() {
-//        Return all ChessGames found in DB
-        return games.getGames();
+    public int createGame(String gameName) throws DataAccessException {
+        String sql = "INSERT INTO game (gameName) VALUES (?)";
+        return executeUpdate(sql, gameName);
     }
 
-    public int createGame(String gameName) {
-//        Create new game in DB
-//        return the gameID given to new game
-        return games.addGame(new GameData(gameName));
-    }
-
-    public GameData findGame(int gameID) {
-//        Find a game within the DB
-//        return the gameData
-        return games.findGame(gameID);
-    }
-
-    public void setUser(String username, String color, int gameID) {
-//        Update game with given ID to store username as matching team color
-        GameData game = games.findGame(gameID);
-        if (color.equals("WHITE")) {
-            if (game.getWhiteUsername() == null) {
-                game.setWhiteUsername(username);
+    public GameData findGame(int gameID) throws DataAccessException {
+        String sql =
+            """
+            SELECT g.id, g.gameName,
+                   white.username AS whiteUsername,
+                   black.username AS blackUsername
+            FROM game g
+            LEFT JOIN user white ON g.whiteUserID = white.id
+            LEFT JOIN user black ON g.blackUserID = black.id
+            WHERE g.id = ?
+            """;
+        try (Connection conn = DatabaseManager.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, gameID);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return buildGameData(rs);
+                }
             }
-        } else {
-            game.setBlackUsername(username);
+        } catch (SQLException e) {
+            throw new DataAccessException("failed to find game: " + e.getMessage());
         }
+        return null;
     }
 
-    public void clear() {
-//        Clear all games
-        games.clearGames();
+    public Collection<GameData> getDBGames() throws DataAccessException {
+        String sql =
+            """
+            SELECT g.id, g.gameName,
+                   white.username AS whiteUsername,
+                   black.username AS blackUsername
+            FROM game g
+            LEFT JOIN user white ON g.whiteUserID = white.id
+            LEFT JOIN user black ON g.blackUserID = black.id
+            """;
+        Collection<GameData> games = new ArrayList<>();
+        try (Connection conn = DatabaseManager.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql);
+             ResultSet rs = ps.executeQuery()) {
+            while (rs.next()) {
+                games.add(buildGameData(rs));
+            }
+        } catch (SQLException e) {
+            throw new DataAccessException("failed to get games: " + e.getMessage());
+        }
+        return games;
+    }
+
+    public void setUser(String username, String color, int gameID) throws DataAccessException {
+        // Get the user's ID
+        String getUserID = "SELECT id FROM user WHERE username = ?";
+        int userID;
+        try (Connection conn = DatabaseManager.getConnection();
+             PreparedStatement ps = conn.prepareStatement(getUserID)) {
+            ps.setString(1, username);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (!rs.next()) throw new DataAccessException("user not found: " + username);
+                userID = rs.getInt("id");
+            }
+        } catch (SQLException e) {
+            throw new DataAccessException("failed to get user ID: " + e.getMessage());
+        }
+
+        // Update the game with their ID
+        String column = color.equals("WHITE") ? "whiteUserID" : "blackUserID";
+        String sql = "UPDATE game SET " + column + " = ? WHERE id = ? AND " + column + " IS NULL";
+        executeUpdate(sql, userID, gameID);
+    }
+
+    public void clear() throws DataAccessException {
+        executeUpdate("TRUNCATE TABLE game");
+    }
+
+    private GameData buildGameData(ResultSet rs) throws SQLException {
+        GameData game = new GameData(rs.getString("gameName"));
+        game.setGameID(rs.getInt("id"));
+        game.setWhiteUsername(rs.getString("whiteUsername"));
+        game.setBlackUsername(rs.getString("blackUsername"));
+        return game;
     }
 }
-
-//public interface GameDAO {
-//
-//    static Collection<GameData> getDBGames() throws DataAccessException {
-////        Return all ChessGames found in DB
-//        throw new DataAccessException("ListGames called. No DB reached");
-//    }
-//
-//    static int createGame(String gameName) throws DataAccessException {
-////        Create new game in DB
-////        return the gameID given to new game
-//        throw new DataAccessException("CreateGame called. No DB reached");
-//    }
-//
-//    static GameData findGame(int gameID) throws DataAccessException {
-////        Find a game within the DB
-////        return the gameData
-//        throw new DataAccessException("findGame called. No DB reached");
-//    }
-//
-//    static void setUser(String username, String Color, int gameID) throws DataAccessException {
-////        Update game with given ID to store username as matching team color
-//        throw new DataAccessException("SetUser called. No DB reached");
-//    }
-//
-//    static void clear() throws DataAccessException {
-////        Clear all games
-//        throw new DataAccessException("GameClear called. No DB reached");
-//    }
-//}
