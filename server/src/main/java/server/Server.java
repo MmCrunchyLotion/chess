@@ -12,20 +12,20 @@ import services.*;
 
 public class Server {
 
-//    private final ChessService service;
     private final Javalin javalin;
 
-    private final UserDAO mockUserDAO;
-    private final AuthDAO mockAuthDAO;
-    private final GameDAO mockGameDAO;
+    private final UserDAO userDAO;
+    private final AuthDAO authDAO;
+    private final GameDAO gameDAO;
 
-//    public Server(ChessService service) {
-//        this.service = service;
     public Server() {
-
-        this.mockUserDAO = new UserDAO();
-        this.mockAuthDAO = new AuthDAO();
-        this.mockGameDAO = new GameDAO();
+        try {
+            this.userDAO = new UserDAO();
+            this.authDAO = new AuthDAO();
+            this.gameDAO = new GameDAO();
+        } catch (DataAccessException e) {
+            throw new RuntimeException("Failed to initialize DAOs: " + e.getMessage());
+        }
 
         javalin = Javalin.create(config -> config.staticFiles.add("web"))
                 .post("/user", this::registerUser)
@@ -55,7 +55,7 @@ public class Server {
     private void registerUser(Context ctx) {
         UserData givenUser = new Gson().fromJson(ctx.body(), UserData.class);
         try {
-            RegisterUserService registerRequest = new RegisterUserService(givenUser, mockUserDAO, mockAuthDAO);
+            RegisterUserService registerRequest = new RegisterUserService(givenUser, userDAO, authDAO);
             registerRequest.register();
             String message = registerRequest.getAuth().toString();
             ctx.result(message);
@@ -67,7 +67,7 @@ public class Server {
     private void login(Context ctx) {
         UserData givenUser = new Gson().fromJson(ctx.body(), UserData.class);
         try {
-            LoginService loginRequest = new LoginService(givenUser, mockUserDAO, mockAuthDAO);
+            LoginService loginRequest = new LoginService(givenUser, userDAO, authDAO);
             loginRequest.login(); // TODO: May need to make it so that a browser only allows for one user to be logged in at a time, but server allows for multiple users to be logged in simultaneously
             String message = loginRequest.getAuth().toString();
             ctx.result(message);
@@ -79,7 +79,7 @@ public class Server {
     private void logout(Context ctx) {
         AuthData auth = new AuthData("", ctx.header("Authorization"));
         try {
-            LogoutService logoutRequest = new LogoutService(auth, mockAuthDAO);
+            LogoutService logoutRequest = new LogoutService(auth, authDAO);
             logoutRequest.logout();
         } catch (ResponseException ex) {
             exceptionHandler(ex, ctx);
@@ -89,7 +89,7 @@ public class Server {
     private void listGames(Context ctx) {
         AuthData auth = new AuthData("", ctx.header("Authorization"));
         try {
-            ListGamesService listGamesRequest = new ListGamesService(auth, mockAuthDAO, mockGameDAO);
+            ListGamesService listGamesRequest = new ListGamesService(auth, authDAO, gameDAO);
             Collection<GameData> games = listGamesRequest.list();
             String message = new Gson().toJson(Map.of("games", games));
             ctx.result(message);
@@ -102,7 +102,7 @@ public class Server {
         AuthData auth = new AuthData("", ctx.header("Authorization"));
         GameData gameBody = new Gson().fromJson(ctx.body(), GameData.class);
         try {
-            CreateGameService createGameRequest = new CreateGameService(auth, gameBody, mockAuthDAO, mockGameDAO);
+            CreateGameService createGameRequest = new CreateGameService(auth, gameBody, authDAO, gameDAO);
             GameData newGame = createGameRequest.addGame();
             String message = new Gson().toJson(Map.of("gameID", newGame.getGameID()));
             ctx.result(message);
@@ -115,14 +115,14 @@ public class Server {
         AuthData auth = new AuthData("", ctx.header("Authorization"));
         JoinBody join = new Gson().fromJson(ctx.body(), JoinBody.class);
         try {
-            JoinGameService joinGameRequest = new JoinGameService(auth, join, mockAuthDAO, mockGameDAO);
-            joinGameRequest.addPlayer(mockGameDAO);
+            JoinGameService joinGameRequest = new JoinGameService(auth, join, authDAO, gameDAO);
+            joinGameRequest.addPlayer(gameDAO);
         } catch (ResponseException ex) {
             exceptionHandler(ex, ctx);
         }
     }
 
     private void clear(Context ctx) {
-        new ClearDBService(mockAuthDAO, mockUserDAO, mockGameDAO);
+        new ClearDBService(authDAO, userDAO, gameDAO);
     }
 }
