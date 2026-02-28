@@ -1,77 +1,53 @@
 package dataaccess;
 
-import mockdatabase.*;
-import models.*;
+import models.AuthData;
+import java.sql.*;
 
-public class AuthDAO {
+public class AuthDAO extends MySqlDataAccess {
 
-    private final AuthTokens tokens;
+    private final String[] createStatements = {
+        """
+        CREATE TABLE IF NOT EXISTS auth (
+            id int NOT NULL AUTO_INCREMENT,
+            username varchar(256) NOT NULL,
+            token varchar(256) NOT NULL,
+            PRIMARY KEY (id),
+            INDEX(username),
+            INDEX(token)
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci
+        """
+    };
 
-    public AuthDAO() {
-        this.tokens = new AuthTokens();
+    public AuthDAO() throws DataAccessException {
+        configureDatabase(createStatements);
     }
 
-    public void addAuth(AuthData auth) {
-//        Add auth to DB
-//        Return auth
-//        AuthData token = new AuthData(auth.getUsername());
-        tokens.addToken(auth);
+    public void addAuth(AuthData auth) throws DataAccessException {
+        String sql = "INSERT INTO auth (username, token) VALUES (?, ?)";
+        executeUpdate(sql, auth.getUsername(), auth.getAuthToken());
     }
 
-    public AuthData getAuthByToken(AuthData auth) {
-//        Find an auth from the DB
-//        Return auth
-        if (auth == null || auth.getAuthToken() == null) {
-            return null;
-        }
-        for (AuthData authDB : tokens.getTokens()) {
-            if (authDB.getAuthToken().equals(auth.getAuthToken())) {
-                return authDB;
+    public AuthData getAuthByToken(String token) throws DataAccessException {
+        String sql = "SELECT username, token FROM auth WHERE token = ?";
+        try (Connection conn = DatabaseManager.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setString(1, token);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return new AuthData(rs.getString("username"), rs.getString("token"));
+                }
             }
+        } catch (SQLException e) {
+            throw new DataAccessException("failed to get auth token: " + e.getMessage());
         }
         return null;
     }
 
-    public void removeAuth(AuthData auth) {
-//        remove auth from DB
-        AuthData toRemove = null;
-        for (AuthData authDB : tokens.getTokens()) {
-            if (authDB.getAuthToken().equals(auth.getAuthToken())) {
-                toRemove = authDB;
-            }
-        }
-        if (toRemove != null) {
-            tokens.removeToken(toRemove);
-        }
+    public void removeAuth(String token) throws DataAccessException {
+        executeUpdate("DELETE FROM auth WHERE token = ?", token);
     }
 
-    public void clear() {
-//        Clear all auth tokens
-        tokens.clearTokens();
+    public void clear() throws DataAccessException {
+        executeUpdate("TRUNCATE TABLE auth");
     }
 }
-//
-//public interface AuthDAO {
-//
-//    static AuthData addAuth(AuthData auth) throws DataAccessException {
-////        Add auth to DB
-////        Return auth
-//        throw new DataAccessException("AddAuth called. No DB reached");
-//    }
-//
-//    static AuthData getAuth(AuthData auth) throws DataAccessException {
-////        Find an auth from the DB
-////        Return auth
-//        throw new DataAccessException("GetAuth called. No DB reached");
-//    }
-//
-//    static void removeAuth(AuthData auth) throws DataAccessException {
-////        remove auth from DB
-//        throw new DataAccessException("RemoveAuth called. No DB reached");
-//    }
-//
-//    static void clear() throws DataAccessException {
-////        Clear all auth tokens
-//        throw new DataAccessException("AuthClear called. No DB reached");
-//    }
-//}
