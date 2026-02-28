@@ -20,13 +20,18 @@ public class Main {
 //                port = Integer.parseInt(args[0]);
 //            }
 //
-//            DataAccess dataAccess = new MemoryDataAccess();
-//            if (args.length >= 2 && args[1].equals("sql")) {
-//                dataAccess = new MySqlDataAccess();
-//            }
+//
+//            AuthDAO authDAO = new AuthDAO();
+//            UserDAO userDAO = new UserDAO();
+//            GameDAO gameDAO = new GameDAO();
+//
+////            if (args.length >= 2 && args[1].equals("sql")) {
+////                dataAccess = new MySqlDataAccess();
+////            }
 //
 //            var service = new ChessService(DataAccess);
-//            var server = new Server(service).run(port);
+//            Server server = new Server();
+//            server.run(8080);
 //            System.out.printf("Server started on port %d", port);
 //            return;
 //        } catch (Throwable ex) {

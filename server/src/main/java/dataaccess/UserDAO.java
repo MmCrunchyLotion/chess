@@ -13,7 +13,7 @@ public class UserDAO extends MySqlDataAccess {
             username varchar(256) NOT NULL,
             password varchar(256) NOT NULL,
             email varchar(256) DEFAULT NULL,
-            PRIMARY KEY ('id')
+            PRIMARY KEY (id),
             INDEX(username)
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
         """
@@ -56,6 +56,6 @@ public class UserDAO extends MySqlDataAccess {
     }
 
     public void clear() throws DataAccessException {
-        executeUpdate("TRUNCATE TABLE user");
+        executeUpdate("DELETE FROM user");
     }
 }

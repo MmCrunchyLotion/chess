@@ -38,28 +38,4 @@ public abstract class MySqlDataAccess {
             throw new DataAccessException("unable to configure database: " + ex.getMessage());
         }
     }
-
-    private final String[] createStatements = {
-            """
-            CREATE TABLE IF NOT EXISTS game (
-                id int NOT NULL AUTO_INCREMENT,
-                whiteUsername int DEFAULT NULL,
-                blackUsername int DEFAULT NULL,
-                gameName varchar(256) NOT NULL,
-                PRIMARY KEY ('id'),
-                CONSTRAINT fk_white FOREIGN KEY (whiteUsername) REFERENCES user (id),
-                CONSTRAINT fk_black FOREIGN KEY (blackUsername) REFERENCES user (id)
-            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-
-            CREATE TABLE IF NOT EXISTS auth (
-                id int NOT NULL AUTO_INCREMENT,
-                username varchar(256) NOT NULL,
-                token varchar(256) NOT NULL,
-                PRIMARY KEY ('id'),
-                INDEX(username),
-                INDEX(token)
-            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-        """
-    };
-
 }
