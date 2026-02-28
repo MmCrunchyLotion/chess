@@ -1,21 +1,26 @@
 package services;
 
-import dataaccess.AuthDAO;
+import dataaccess.*;
 import exception.ResponseException;
 import models.*;
+import static exception.ResponseException.Code.*;
 
 public class LogoutService extends Service {
 
     private final AuthData auth;
-    private final AuthDAO mockAuthDAO;
+    private final AuthDAO authDAO;
 
-    public LogoutService(AuthData auth, AuthDAO mockAuthDAO) throws ResponseException {
-        this.mockAuthDAO = mockAuthDAO;
+    public LogoutService(AuthData auth, AuthDAO authDAO) throws ResponseException {
+        this.authDAO = authDAO;
         this.auth = auth;
-        checkAuth(auth, mockAuthDAO);
+        checkAuth(auth, authDAO);
     }
 
-    public void logout() {
-        mockAuthDAO.removeAuth(auth);
+    public void logout() throws ResponseException {
+        try {
+            authDAO.removeAuth(auth.getAuthToken());
+        } catch (DataAccessException e) {
+            throw new ResponseException(ServerError, e.getMessage());
+        }
     }
 }

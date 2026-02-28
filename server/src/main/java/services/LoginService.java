@@ -1,33 +1,34 @@
 package services;
 
 import static exception.ResponseException.Code.*;
-import dataaccess.UserDAO;
-import dataaccess.AuthDAO;
+import dataaccess.*;
 import exception.ResponseException;
-import java.util.Objects;
 import models.*;
 
 public class LoginService extends Service {
 
     private final UserData user;
     private AuthData auth;
-    private final UserDAO mockUserDAO;
-    private final AuthDAO mockAuthDAO;
+    private final UserDAO userDAO;
+    private final AuthDAO authDAO;
 
-    public LoginService (UserData user, UserDAO mockUserDAO, AuthDAO mockAuthDAO) {
+    public LoginService(UserData user, UserDAO userDAO, AuthDAO authDAO) {
         this.user = user;
-        this.mockUserDAO = mockUserDAO;
-        this.mockAuthDAO = mockAuthDAO;
+        this.userDAO = userDAO;
+        this.authDAO = authDAO;
     }
 
     public void login() throws ResponseException {
         checkNullFields(user);
-        UserData userDB = mockUserDAO.getUser(user.getUsername());
-        if (userDB == null || !Objects.equals(user.getPassword(), userDB.getPassword())) {
-            throw new ResponseException(Unauthorized, "Error: Incorrect username or password.");
+        try {
+            if (!userDAO.verifyPassword(user.getUsername(), user.getPassword())) {
+                throw new ResponseException(Unauthorized, "Error: Incorrect username or password.");
+            }
+            auth = new AuthData(user.getUsername(), null);
+            authDAO.addAuth(auth);
+        } catch (DataAccessException e) {
+            throw new ResponseException(ServerError, e.getMessage());
         }
-        auth = new AuthData(user.getUsername(), null);
-        mockAuthDAO.addAuth(auth);
     }
 
     public AuthData getAuth() {

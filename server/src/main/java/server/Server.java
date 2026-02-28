@@ -123,6 +123,10 @@ public class Server {
     }
 
     private void clear(Context ctx) {
-        new ClearDBService(authDAO, userDAO, gameDAO);
+        try {
+            new ClearDBService(authDAO, userDAO, gameDAO);
+        } catch (ResponseException ex) {
+            exceptionHandler(ex, ctx);
+        }
     }
 }
