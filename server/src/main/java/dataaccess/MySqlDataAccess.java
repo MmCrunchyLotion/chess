@@ -22,7 +22,7 @@ public abstract class MySqlDataAccess {
             }
             return 0;
         } catch (SQLException e) {
-            throw new DataAccessException("unable to update database: " + e.getMessage());
+            throw new DataAccessException("Error: unable to update database: " + e.getMessage());
         }
     }
 
@@ -35,7 +35,7 @@ public abstract class MySqlDataAccess {
                 }
             }
         } catch (SQLException ex) {
-            throw new DataAccessException("unable to configure database: " + ex.getMessage());
+            throw new DataAccessException("Error: unable to configure database: " + ex.getMessage());
         }
     }
 }

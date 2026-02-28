@@ -38,7 +38,7 @@ public class AuthDAO extends MySqlDataAccess {
                 }
             }
         } catch (SQLException e) {
-            throw new DataAccessException("failed to get auth token: " + e.getMessage());
+            throw new DataAccessException("Error: failed to get auth token: " + e.getMessage());
         }
         return null;
     }

@@ -24,7 +24,7 @@ public class Server {
             this.authDAO = new AuthDAO();
             this.gameDAO = new GameDAO();
         } catch (DataAccessException e) {
-            throw new RuntimeException("Failed to initialize DAOs: " + e.getMessage());
+            throw new RuntimeException("Error: Failed to initialize DAOs: " + e.getMessage());
         }
 
         javalin = Javalin.create(config -> config.staticFiles.add("web"))

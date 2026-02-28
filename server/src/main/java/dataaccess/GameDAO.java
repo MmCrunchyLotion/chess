@@ -50,7 +50,7 @@ public class GameDAO extends MySqlDataAccess {
                 }
             }
         } catch (SQLException e) {
-            throw new DataAccessException("failed to find game: " + e.getMessage());
+            throw new DataAccessException("Error: failed to find game: " + e.getMessage());
         }
         return null;
     }
@@ -73,7 +73,7 @@ public class GameDAO extends MySqlDataAccess {
                 games.add(buildGameData(rs));
             }
         } catch (SQLException e) {
-            throw new DataAccessException("failed to get games: " + e.getMessage());
+            throw new DataAccessException("Error: failed to get games: " + e.getMessage());
         }
         return games;
     }
@@ -86,11 +86,11 @@ public class GameDAO extends MySqlDataAccess {
              PreparedStatement ps = conn.prepareStatement(getUserID)) {
             ps.setString(1, username);
             try (ResultSet rs = ps.executeQuery()) {
-                if (!rs.next()) throw new DataAccessException("user not found: " + username);
+                if (!rs.next()) throw new DataAccessException("Error: user not found: " + username);
                 userID = rs.getInt("id");
             }
         } catch (SQLException e) {
-            throw new DataAccessException("failed to get user ID: " + e.getMessage());
+            throw new DataAccessException("Error: failed to get user ID: " + e.getMessage());
         }
 
         // Update the game with their ID

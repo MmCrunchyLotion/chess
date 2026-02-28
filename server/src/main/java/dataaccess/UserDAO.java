@@ -38,7 +38,7 @@ public class UserDAO extends MySqlDataAccess {
                 }
             }
         } catch (SQLException e) {
-            throw new DataAccessException("failed to get user: " + e.getMessage());
+            throw new DataAccessException("Error: failed to get user: " + e.getMessage());
         }
         return null;
     }
