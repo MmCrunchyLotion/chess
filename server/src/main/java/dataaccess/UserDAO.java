@@ -1,53 +1,61 @@
 package dataaccess;
 
-import mockdatabase.*;
-import models.*;
+import models.UserData;
+import org.mindrot.jbcrypt.BCrypt;
+import java.sql.*;
 
-public class UserDAO {
+public class UserDAO extends MySqlDataAccess {
 
-    private final Users users;
+    private final String[] createStatements = {
+        """
+            CREATE TABLE IF NOT EXISTS user (
+            id int NOT NULL AUTO_INCREMENT,
+            username varchar(256) NOT NULL,
+            password varchar(256) NOT NULL,
+            email varchar(256) DEFAULT NULL,
+            PRIMARY KEY ('id')
+            INDEX(username)
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+        """
+    };
 
-    public UserDAO() {
-        this.users = new Users();
+    public UserDAO() throws DataAccessException{
+        configureDatabase(createStatements);
     }
 
-    public UserData getUser(String username) {
-//        Search database for user with username
-//        return user;
-        for (UserData user : users.getUsers()) {
-            if (user.getUsername().equals(username)) {
-                return user;
+    public UserData getUser(String username) throws DataAccessException {
+        String sql = "SELECT username, password, email FROM user WHERE username = ?";
+        try (Connection conn = DatabaseManager.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setString(1, username);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return new UserData(
+                            rs.getString("username"),
+                            rs.getString("password"),
+                            rs.getString("email")
+                    );
+                }
             }
+        } catch (SQLException e) {
+            throw new DataAccessException("failed to get user: " + e.getMessage());
         }
         return null;
     }
 
-    public void createUser(UserData user) {
-//        Add new user to the database
-        users.addUser(user);
+    public boolean verifyPassword(String username, String plainPassword) throws DataAccessException {
+        UserData user = getUser(username);
+        if (user == null) return false;
+        return BCrypt.checkpw(plainPassword, user.getPassword());
     }
 
-    public void clear() {
-//        Clear all Users
-        users.clearUsers();
+    public void createUser(UserData user) throws DataAccessException {
+        String hashedPassword = BCrypt.hashpw(user.getPassword(), BCrypt.gensalt());
+        String sql = "INSERT INTO user (username, password, email) VALUES (?, ?, ?)";
+        executeUpdate(sql, user.getUsername(), hashedPassword, user.getEmail());
+    }
+
+    public void clear() throws DataAccessException {
+        executeUpdate("TRUNCATE TABLE user");
     }
 }
-
-//public interface UserDAO {
-//
-//    static UserData getUser(String username) throws DataAccessException {
-////        Search database for user with username
-////        return user;
-//        throw new DataAccessException("GetUser called. No DB reached");
-//    }
-//
-//    static void createUser(UserData user) throws DataAccessException {
-////        Add new user to the database
-//        throw new DataAccessException("CreateUser called. No DB reached");
-//    }
-//
-//    static void clear() throws DataAccessException {
-////        Clear all Users
-//        throw new DataAccessException("UserClear called. No DB reached");
-//    }
-//}
