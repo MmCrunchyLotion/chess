@@ -6,7 +6,7 @@ import java.util.UUID;
 public class AuthData {
 
     private final String username;
-    private String authToken;
+    private final String authToken;
 
     public AuthData(String username, String authToken) {
         if (authToken == null) {
