@@ -8,7 +8,7 @@ public class UserDAO extends MySqlDataAccess {
 
     public UserDAO() throws DataAccessException{
         String[] createStatements = {
-                """
+        """
             CREATE TABLE IF NOT EXISTS user (
             id int NOT NULL AUTO_INCREMENT,
             username varchar(256) NOT NULL,

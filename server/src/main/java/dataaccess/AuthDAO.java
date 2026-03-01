@@ -7,15 +7,15 @@ public class AuthDAO extends MySqlDataAccess {
 
     public AuthDAO() throws DataAccessException {
         String[] createStatements = {
-                """
-        CREATE TABLE IF NOT EXISTS auth (
-            id int NOT NULL AUTO_INCREMENT,
-            username varchar(256) NOT NULL,
-            token varchar(256) NOT NULL,
-            PRIMARY KEY (id),
-            INDEX(username),
-            INDEX(token)
-        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci
+        """
+            CREATE TABLE IF NOT EXISTS auth (
+                id int NOT NULL AUTO_INCREMENT,
+                username varchar(256) NOT NULL,
+                token varchar(256) NOT NULL,
+                PRIMARY KEY (id),
+                INDEX(username),
+                INDEX(token)
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci
         """
         };
         configureDatabase(createStatements);

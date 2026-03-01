@@ -57,19 +57,19 @@ public class GameDAOTests {
     // getDBGames
     @Test
     @DisplayName("Get All Games - Success")
-    void getDBGamesPositive() throws DataAccessException {
+    void getAllGamesPositive() throws DataAccessException {
         gameDAO.createGame("game1");
         gameDAO.createGame("game2");
         gameDAO.createGame("game3");
-        var games = gameDAO.getDBGames();
+        var games = gameDAO.getAllGames();
         assertNotNull(games);
         assertEquals(3, games.size());
     }
 
     @Test
     @DisplayName("Get All Games - Empty Table")
-    void getDBGamesNegative() throws DataAccessException {
-        var games = gameDAO.getDBGames();
+    void getAllGamesNegative() throws DataAccessException {
+        var games = gameDAO.getAllGames();
         assertNotNull(games);
         assertEquals(0, games.size());
     }
@@ -93,6 +93,73 @@ public class GameDAOTests {
         assertThrows(DataAccessException.class, () -> gameDAO.setUser("nonexistentUser", "WHITE", 1));
     }
 
+    // Game State
+
+    @Test
+    @DisplayName("Game State - Initial Board is Valid")
+    void gameStateInitialBoard() throws DataAccessException {
+        // a newly created game should have a valid starting chess board
+        int gameID = gameDAO.createGame("testGame");
+        GameData result = gameDAO.getGame(gameID);
+        assertNotNull(result.getGame());
+        // white should go first
+        assertEquals(chess.ChessGame.TeamColor.WHITE, result.getGame().getTeamTurn());
+        // board should have 32 pieces in starting position
+        long pieceCount = result.getGame().getBoard().getBoard().stream()
+                .filter(pos -> pos.getOccupied() != null)
+                .count();
+        assertEquals(32, pieceCount);
+    }
+
+    @Test
+    @DisplayName("Game State - Update and Retrieve")
+    void gameStateUpdateAndRetrieve() throws DataAccessException {
+        // updating the game state should persist correctly to the database
+        int gameID = gameDAO.createGame("testGame");
+        GameData result = gameDAO.getGame(gameID);
+        // make a move and update
+        chess.ChessGame game = result.getGame();
+        game.setTeamTurn(chess.ChessGame.TeamColor.BLACK);
+        gameDAO.updateGame(gameID, game);
+        // retrieve and verify the update persisted
+        GameData updated = gameDAO.getGame(gameID);
+        assertEquals(chess.ChessGame.TeamColor.BLACK, updated.getGame().getTeamTurn());
+    }
+
+    @Test
+    @DisplayName("Game State - Serialization Round Trip")
+    void gameStateSerializationRoundTrip() throws DataAccessException {
+        // serializing and deserializing a game should produce an equal game object
+        int gameID = gameDAO.createGame("testGame");
+        GameData original = gameDAO.getGame(gameID);
+        chess.ChessGame originalGame = original.getGame();
+        // update with the same game to force a serialize/deserialize cycle
+        gameDAO.updateGame(gameID, originalGame);
+        GameData retrieved = gameDAO.getGame(gameID);
+        // board state should be identical after round trip
+        assertEquals(originalGame.getBoard(), retrieved.getGame().getBoard());
+        assertEquals(originalGame.getTeamTurn(), retrieved.getGame().getTeamTurn());
+    }
+
+    @Test
+    @DisplayName("Game State - Persists After Recreating DAO")
+    void gameStatePersistsAfterRestart() throws DataAccessException {
+        // game state should still be retrievable after creating a new DAO instance
+        // simulates a server restart since the DAO is recreated
+        int gameID = gameDAO.createGame("testGame");
+        GameData original = gameDAO.getGame(gameID);
+        chess.ChessGame game = original.getGame();
+        game.setTeamTurn(chess.ChessGame.TeamColor.BLACK);
+        gameDAO.updateGame(gameID, game);
+        // create a brand new DAO instance (simulates restart)
+        GameDAO newGameDAO = new GameDAO();
+        GameData result = newGameDAO.getGame(gameID);
+        assertNotNull(result);
+        assertNotNull(result.getGame());
+        // team turn should still be BLACK after the simulated restart
+        assertEquals(chess.ChessGame.TeamColor.BLACK, result.getGame().getTeamTurn());
+    }
+
     // clear
     @Test
     @DisplayName("Clear - Success")
@@ -100,7 +167,7 @@ public class GameDAOTests {
         gameDAO.createGame("game1");
         gameDAO.createGame("game2");
         gameDAO.clear();
-        var games = gameDAO.getDBGames();
+        var games = gameDAO.getAllGames();
         assertEquals(0, games.size());
     }
 

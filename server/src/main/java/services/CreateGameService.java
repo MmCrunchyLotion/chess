@@ -3,7 +3,8 @@ package services;
 import static exception.ResponseException.Code.*;
 import dataaccess.*;
 import exception.ResponseException;
-import models.*;
+import models.AuthData;
+import models.GameData;
 
 public class CreateGameService extends Service {
 

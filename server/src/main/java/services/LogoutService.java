@@ -2,7 +2,8 @@ package services;
 
 import dataaccess.*;
 import exception.ResponseException;
-import models.*;
+import models.AuthData;
+
 import static exception.ResponseException.Code.*;
 
 public class LogoutService extends Service {

@@ -2,8 +2,11 @@ package services;
 
 import dataaccess.*;
 import exception.ResponseException;
+import models.AuthData;
+import models.GameData;
+
 import java.util.Collection;
-import models.*;
+
 import static exception.ResponseException.Code.*;
 
 public class ListGamesService extends Service {
@@ -17,7 +20,7 @@ public class ListGamesService extends Service {
 
     public Collection<GameData> list() throws ResponseException {
         try {
-            return gameDAO.getDBGames();
+            return gameDAO.getAllGames();
         } catch (DataAccessException e) {
             throw new ResponseException(ServerError, e.getMessage());
         }

@@ -3,7 +3,9 @@ package services;
 import static exception.ResponseException.Code.*;
 import dataaccess.*;
 import exception.ResponseException;
-import models.*;
+import models.AuthData;
+import models.GameData;
+import models.JoinBody;
 
 public class JoinGameService extends Service {
 
