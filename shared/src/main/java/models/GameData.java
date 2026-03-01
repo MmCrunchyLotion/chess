@@ -1,14 +1,26 @@
 package models;
 
+import chess.ChessGame;
+
 public class GameData {
 
     private int gameID;
     private String whiteUsername;
     private String blackUsername;
     private final String gameName;
+    private ChessGame game;
 
     public GameData(String gameName) {
         this.gameName = gameName;
+        this.game = new ChessGame();
+    }
+
+    public ChessGame getGame() {
+        return game;
+    }
+
+    public void setGame(ChessGame game) {
+        this.game = game;
     }
 
     public int getGameID() {

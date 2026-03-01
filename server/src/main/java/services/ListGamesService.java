@@ -1,21 +1,28 @@
 package services;
 
-import dataaccess.AuthDAO;
-import dataaccess.GameDAO;
+import dataaccess.*;
 import exception.ResponseException;
+import models.AuthData;
+import models.GameData;
+
 import java.util.Collection;
-import models.*;
+
+import static exception.ResponseException.Code.*;
 
 public class ListGamesService extends Service {
 
-    private final GameDAO mockGameDAO;
+    private final GameDAO gameDAO;
 
-    public ListGamesService(AuthData auth, AuthDAO mockAuthDAO, GameDAO mockGameDAO) throws ResponseException {
-        this.mockGameDAO = mockGameDAO;
-        checkAuth(auth, mockAuthDAO);
+    public ListGamesService(AuthData auth, AuthDAO authDAO, GameDAO gameDAO) throws ResponseException {
+        this.gameDAO = gameDAO;
+        checkAuth(auth, authDAO);
     }
 
-    public Collection<GameData> list() {
-        return mockGameDAO.getDBGames();
+    public Collection<GameData> list() throws ResponseException {
+        try {
+            return gameDAO.getAllGames();
+        } catch (DataAccessException e) {
+            throw new ResponseException(ServerError, e.getMessage());
+        }
     }
 }
