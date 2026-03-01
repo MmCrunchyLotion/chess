@@ -30,8 +30,8 @@ public class UserDAOTests {
         UserData result = userDAO.getUser(user.getUsername());
         assertNotNull(result);
         assertTrue(userDAO.verifyPassword(result.getUsername(), "password"));
-        assertEquals(result.getEmail(), "email");
-        assertEquals(result.getUsername(), "testUser");
+        assertEquals("email", result.getEmail());
+        assertEquals("testUser", result.getUsername());
     }
 
     @Test
@@ -59,8 +59,8 @@ public class UserDAOTests {
         UserData result = userDAO.getUser(user.getUsername());
         assertNotNull(result);
         assertTrue(userDAO.verifyPassword(result.getUsername(), "password"));
-        assertEquals(result.getEmail(), "email");
-        assertEquals(result.getUsername(), "testUser");
+        assertEquals("email", result.getEmail());
+        assertEquals("testUser", result.getUsername());
     }
 
     @Test
