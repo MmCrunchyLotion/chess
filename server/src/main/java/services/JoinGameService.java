@@ -14,7 +14,7 @@ public class JoinGameService extends Service {
     public JoinGameService(AuthData auth, JoinBody join, AuthDAO authDAO, GameDAO gameDAO) throws ResponseException {
         checkAuth(auth, authDAO);
         try {
-            this.game = gameDAO.findGame(join.getGameID());
+            this.game = gameDAO.getGame(join.getGameID());
         } catch (DataAccessException e) {
             throw new ResponseException(ServerError, e.getMessage());
         }

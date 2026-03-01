@@ -6,8 +6,9 @@ import java.sql.*;
 
 public class UserDAO extends MySqlDataAccess {
 
-    private final String[] createStatements = {
-        """
+    public UserDAO() throws DataAccessException{
+        String[] createStatements = {
+                """
             CREATE TABLE IF NOT EXISTS user (
             id int NOT NULL AUTO_INCREMENT,
             username varchar(256) NOT NULL,
@@ -17,9 +18,7 @@ public class UserDAO extends MySqlDataAccess {
             INDEX(username)
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
         """
-    };
-
-    public UserDAO() throws DataAccessException{
+        };
         configureDatabase(createStatements);
     }
 
@@ -50,6 +49,9 @@ public class UserDAO extends MySqlDataAccess {
     }
 
     public void createUser(UserData user) throws DataAccessException {
+        if (user.getPassword() == null || user.getUsername() == null) {
+            throw new DataAccessException("Error: username and password cannot be null");
+        }
         String hashedPassword = BCrypt.hashpw(user.getPassword(), BCrypt.gensalt());
         String sql = "INSERT INTO user (username, password, email) VALUES (?, ?, ?)";
         executeUpdate(sql, user.getUsername(), hashedPassword, user.getEmail());

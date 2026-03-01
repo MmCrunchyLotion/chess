@@ -7,8 +7,9 @@ import java.util.Collection;
 
 public class GameDAO extends MySqlDataAccess {
 
-    private final String[] createStatements = {
-        """
+    public GameDAO() throws DataAccessException {
+        String[] createStatements = {
+                """
         CREATE TABLE IF NOT EXISTS game (
             id int NOT NULL AUTO_INCREMENT,
             whiteUserID int DEFAULT NULL,
@@ -19,9 +20,7 @@ public class GameDAO extends MySqlDataAccess {
             CONSTRAINT fk_black FOREIGN KEY (blackUserID) REFERENCES user (id)
         ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci
         """
-    };
-
-    public GameDAO() throws DataAccessException {
+        };
         configureDatabase(createStatements);
     }
 
@@ -30,7 +29,7 @@ public class GameDAO extends MySqlDataAccess {
         return executeUpdate(sql, gameName);
     }
 
-    public GameData findGame(int gameID) throws DataAccessException {
+    public GameData getGame(int gameID) throws DataAccessException {
         String sql =
             """
             SELECT g.id, g.gameName,
@@ -81,6 +80,15 @@ public class GameDAO extends MySqlDataAccess {
     public void setUser(String username, String color, int gameID) throws DataAccessException {
         // Get the user's ID
         String getUserID = "SELECT id FROM user WHERE username = ?";
+        int userID = getUserID(username, getUserID);
+
+        // Update the game with their ID
+        String column = color.equals("WHITE") ? "whiteUserID" : "blackUserID";
+        String sql = "UPDATE game SET " + column + " = ? WHERE id = ? AND " + column + " IS NULL";
+        executeUpdate(sql, userID, gameID);
+    }
+
+    private static int getUserID(String username, String getUserID) throws DataAccessException {
         int userID;
         try (Connection conn = DatabaseManager.getConnection();
              PreparedStatement ps = conn.prepareStatement(getUserID)) {
@@ -92,11 +100,7 @@ public class GameDAO extends MySqlDataAccess {
         } catch (SQLException e) {
             throw new DataAccessException("Error: failed to get user ID: " + e.getMessage());
         }
-
-        // Update the game with their ID
-        String column = color.equals("WHITE") ? "whiteUserID" : "blackUserID";
-        String sql = "UPDATE game SET " + column + " = ? WHERE id = ? AND " + column + " IS NULL";
-        executeUpdate(sql, userID, gameID);
+        return userID;
     }
 
     public void clear() throws DataAccessException {

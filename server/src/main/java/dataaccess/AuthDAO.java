@@ -5,8 +5,9 @@ import java.sql.*;
 
 public class AuthDAO extends MySqlDataAccess {
 
-    private final String[] createStatements = {
-        """
+    public AuthDAO() throws DataAccessException {
+        String[] createStatements = {
+                """
         CREATE TABLE IF NOT EXISTS auth (
             id int NOT NULL AUTO_INCREMENT,
             username varchar(256) NOT NULL,
@@ -16,9 +17,7 @@ public class AuthDAO extends MySqlDataAccess {
             INDEX(token)
         ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci
         """
-    };
-
-    public AuthDAO() throws DataAccessException {
+        };
         configureDatabase(createStatements);
     }
 
