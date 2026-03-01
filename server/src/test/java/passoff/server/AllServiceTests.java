@@ -28,7 +28,7 @@ public class AllServiceTests {
     }
 
     @BeforeEach
-    void clear() throws DataAccessException, ResponseException {
+    void clear() throws ResponseException {
         // wipe all tables before each test so tests don't interfere with each other
         new ClearDBService(authDAO, userDAO, gameDAO);
         testUser = new UserData("testUser", "password", "test@mail.com");
