@@ -34,13 +34,13 @@ public class JoinGameService extends Service {
         }
         try {
             if (color.equals("WHITE")) {
-                if (game.getWhiteUsername() != null) {
-                    throw new ResponseException(AlreadyTaken, "Error: Team already taken");
+                if (game.getWhiteUsername() != null && !game.getWhiteUsername().equals(username)) {
+                    throw new ResponseException(AlreadyTaken, "Error: White is already taken by another player");
                 }
                 gameDAO.setUser(username, "WHITE", game.getGameID());
             } else {
-                if (game.getBlackUsername() != null) {
-                    throw new ResponseException(AlreadyTaken, "Error: Team already taken");
+                if (game.getBlackUsername() != null && !game.getBlackUsername().equals(username)) {
+                    throw new ResponseException(AlreadyTaken, "Error: Black is already taken by another player");
                 }
                 gameDAO.setUser(username, "BLACK", game.getGameID());
             }

@@ -4,7 +4,6 @@ import dataaccess.*;
 import exception.ResponseException;
 import models.AuthData;
 import models.UserData;
-
 import static exception.ResponseException.Code.*;
 
 public class Service {

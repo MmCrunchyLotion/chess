@@ -1,0 +1,45 @@
+package ui;
+
+import client.ServerFacade;
+
+public class SpectatingHandler extends Handler {
+
+    private final ServerFacade server;
+    private UILoop.States state;
+
+    public SpectatingHandler(ServerFacade facade) {
+        this.server = facade;
+        this.state = UILoop.States.SPECTATING;
+    }
+
+    public void handle(String[] args) {
+        setArgs(args);
+        switch (arg0.toLowerCase()) {
+            case "help" -> help();
+            case "leave" -> this.state = leave();
+            default -> System.out.println("Unknown command. Type 'help' for a list of commands.\n");
+        }
+        clearArgs();
+    }
+
+    private static void help() {
+        System.out.println("Available commands:");
+        System.out.println("  help  - shows possible commands");
+        System.out.println("  leave  - stop spectating");
+        System.out.println("  quit  - exit the client\n");
+    }
+
+    public UILoop.States leave() {
+        this.state = UILoop.States.LOGGED_IN;
+        System.out.println("Stopped spectating\n");
+        return UILoop.States.LOGGED_IN;
+    }
+
+    public UILoop.States getState() {
+        return state;
+    }
+
+    public void setState(UILoop.States state) {
+        this.state = state;
+    }
+}

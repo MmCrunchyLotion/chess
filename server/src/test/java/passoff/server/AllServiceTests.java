@@ -234,4 +234,56 @@ public class AllServiceTests {
         // clearing already empty tables should not throw
         assertDoesNotThrow(() -> new ClearDBService(authDAO, userDAO, gameDAO));
     }
+
+    @Test
+    @Order(15)
+    @DisplayName("Join Game - Rejoin Same Color Success")
+    void rejoinGameSameColorPositive() throws ResponseException, DataAccessException {
+        // a player should be able to rejoin a game as the same color they already have
+        AuthData auth = registerAndLogin();
+        GameData createdGame = new CreateGameService(auth, new GameData("testGame"), authDAO, gameDAO).addGame();
+        JoinBody join = new JoinBody("WHITE", createdGame.getGameID());
+        new JoinGameService(auth, join, authDAO, gameDAO).addPlayer(gameDAO);
+        // rejoin as white should succeed
+        JoinGameService rejoin = new JoinGameService(auth, join, authDAO, gameDAO);
+        assertDoesNotThrow(() -> rejoin.addPlayer(gameDAO));
+        GameData result = gameDAO.getGame(createdGame.getGameID());
+        assertEquals(testUser.getUsername(), result.getWhiteUsername());
+    }
+
+    @Test
+    @Order(16)
+    @DisplayName("Join Game - Switch Color Blocked")
+    void rejoinGameSwitchColorNegative() throws ResponseException {
+        // a player should not be able to switch to the other color
+        AuthData auth = registerAndLogin();
+        GameData createdGame = new CreateGameService(auth, new GameData("testGame"), authDAO, gameDAO).addGame();
+        JoinBody joinWhite = new JoinBody("WHITE", createdGame.getGameID());
+        new JoinGameService(auth, joinWhite, authDAO, gameDAO).addPlayer(gameDAO);
+        // try to switch to black
+        JoinBody joinBlack = new JoinBody("BLACK", createdGame.getGameID());
+        JoinGameService switchAttempt = new JoinGameService(auth, joinBlack, authDAO, gameDAO);
+        ResponseException ex = assertThrows(ResponseException.class, () -> switchAttempt.addPlayer(gameDAO));
+        assertEquals(ResponseException.Code.AlreadyTaken, ex.code());
+    }
+
+    @Test
+    @Order(17)
+    @DisplayName("Join Game - Other Player Color Blocked")
+    void joinGameOtherPlayerColorNegative() throws ResponseException {
+        // a second player should not be able to take a color already claimed by someone else
+        AuthData auth1 = registerAndLogin();
+        UserData secondUser = new UserData("secondUser", "password", "second@mail.com");
+        new RegisterUserService(secondUser, userDAO, authDAO).register();
+        LoginService secondLogin = new LoginService(secondUser, userDAO, authDAO);
+        secondLogin.login();
+        AuthData auth2 = secondLogin.getAuth();
+        GameData createdGame = new CreateGameService(auth1, new GameData("testGame"), authDAO, gameDAO).addGame();
+        JoinBody join = new JoinBody("WHITE", createdGame.getGameID());
+        new JoinGameService(auth1, join, authDAO, gameDAO).addPlayer(gameDAO);
+        // second player tries to take white
+        JoinGameService secondJoin = new JoinGameService(auth2, join, authDAO, gameDAO);
+        ResponseException ex = assertThrows(ResponseException.class, () -> secondJoin.addPlayer(gameDAO));
+        assertEquals(ResponseException.Code.AlreadyTaken, ex.code());
+    }
 }
