@@ -16,6 +16,10 @@ public class ServerFacade {
         this.serverUrl = serverUrl;
     }
 
+    public ServerFacade(int port) {
+        this.serverUrl = "http://localhost:" + port;
+    }
+
     public AuthData register(UserData user) throws ResponseException {
         return makeRequest("POST", "/user", user, AuthData.class);
     }
@@ -41,6 +45,9 @@ public class ServerFacade {
         makeRequest("PUT", "/game", new JoinBody(playerColor, gameID), null, authToken);
     }
 
+    public void clear() throws ResponseException {
+        makeRequest("DELETE", "/db", null, null);
+    }
 
     private <T> T makeRequest(String method, String path, Object request, Class<T> responseClass) throws ResponseException {
         return makeRequest(method, path, request, responseClass, null);

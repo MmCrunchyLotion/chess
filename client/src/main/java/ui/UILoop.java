@@ -51,10 +51,10 @@ public class UILoop {
                 System.out.println("Invalid command\n");
             }
 
-            if (args[0].equalsIgnoreCase("exit")) {
+            if (args[0].equalsIgnoreCase("quit")) {
                 switch (this.state) {
-                    case PLAYING -> this.state = playingHandler.quit();
-                    case SPECTATING -> this.state = spectatingHandler.quit();
+                    case PLAYING -> this.state = playingHandler.leave();
+                    case SPECTATING -> this.state = spectatingHandler.leave();
                     case LOGGED_IN -> {
                         this.state = loggedInHandler.logout(args);
                         running = false;

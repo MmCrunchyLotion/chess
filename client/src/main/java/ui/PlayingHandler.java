@@ -17,7 +17,7 @@ public class PlayingHandler extends Handler {
         switch (arg0.toLowerCase()) {
             case "help" -> help();
             case "move" -> move(args);
-            case "quit" -> this.state = quit();
+            case "quit" -> this.state = leave();
             default -> System.out.println("Unknown command. Type 'help' for a list of commands.\n");
         }
         clearArgs();
@@ -27,8 +27,8 @@ public class PlayingHandler extends Handler {
         System.out.println("Available commands:");
         System.out.println("  help          - shows possible commands");
         System.out.println("  move <FROM> <TO> - move a piece (e.g. move e2 e4)");
-        System.out.println("  quit          - exit the current game");
-        System.out.println("  exit          - exit the client\n");
+        System.out.println("  leave          - exit the current game");
+        System.out.println("  quit          - exit the client\n");
     }
 
     private void move(String[] args) {
@@ -40,7 +40,7 @@ public class PlayingHandler extends Handler {
         }
     }
 
-    public UILoop.States quit() {
+    public UILoop.States leave() {
         System.out.println("Left the game\n");
         return UILoop.States.LOGGED_IN;
     }

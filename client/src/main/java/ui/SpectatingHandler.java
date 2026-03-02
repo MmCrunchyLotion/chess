@@ -16,7 +16,7 @@ public class SpectatingHandler extends Handler {
         setArgs(args);
         switch (arg0.toLowerCase()) {
             case "help" -> help();
-            case "quit" -> this.state = quit();
+            case "quit" -> this.state = leave();
             default -> System.out.println("Unknown command. Type 'help' for a list of commands.\n");
         }
         clearArgs();
@@ -25,11 +25,11 @@ public class SpectatingHandler extends Handler {
     private static void help() {
         System.out.println("Available commands:");
         System.out.println("  help  - shows possible commands");
-        System.out.println("  quit  - stop spectating");
-        System.out.println("  exit  - exit the client\n");
+        System.out.println("  leave  - stop spectating");
+        System.out.println("  quit  - exit the client\n");
     }
 
-    public UILoop.States quit() {
+    public UILoop.States leave() {
         System.out.println("Stopped spectating\n");
         return UILoop.States.LOGGED_IN;
     }
