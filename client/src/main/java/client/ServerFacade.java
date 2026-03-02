@@ -77,12 +77,15 @@ public class ServerFacade {
                     return gson.fromJson(reader, responseClass);
                 }
             } else {
-                try (InputStream is = http.getErrorStream();
-                     Reader reader = new InputStreamReader(is)) {
-                    var error = gson.fromJson(reader, ResponseException.class);
-                    throw ResponseException.fromJson(gson.toJson(error));
-                }
+            try (InputStream is = http.getErrorStream();
+                 Reader reader = new InputStreamReader(is)) {
+                var map = gson.fromJson(reader, java.util.Map.class);
+                String message = map.get("message").toString();
+                String status = map.get("status").toString();
+                ResponseException.Code code = ResponseException.Code.valueOf(status);
+                throw new ResponseException(code, message);
             }
+        }
         } catch (ResponseException ex) {
             throw ex;
         } catch (Exception ex) {

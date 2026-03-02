@@ -84,13 +84,10 @@ public class GameDAO extends MySqlDataAccess {
     }
 
     public void setUser(String username, String color, int gameID) throws DataAccessException {
-        // Get the user's ID
         String getUserID = "SELECT id FROM user WHERE username = ?";
         int userID = getUserID(username, getUserID);
-
-        // Update the game with their ID
         String column = color.equals("WHITE") ? "whiteUserID" : "blackUserID";
-        String sql = "UPDATE game SET " + column + " = ? WHERE id = ? AND " + column + " IS NULL";
+        String sql = "UPDATE game SET " + column + " = ? WHERE id = ?";
         executeUpdate(sql, userID, gameID);
     }
 

@@ -17,7 +17,7 @@ public class PlayingHandler extends Handler {
         switch (arg0.toLowerCase()) {
             case "help" -> help();
             case "move" -> move(args);
-            case "quit" -> this.state = leave();
+            case "leave" -> this.state = leave();
             default -> System.out.println("Unknown command. Type 'help' for a list of commands.\n");
         }
         clearArgs();
@@ -41,6 +41,7 @@ public class PlayingHandler extends Handler {
     }
 
     public UILoop.States leave() {
+        this.state = UILoop.States.LOGGED_IN;
         System.out.println("Left the game\n");
         return UILoop.States.LOGGED_IN;
     }

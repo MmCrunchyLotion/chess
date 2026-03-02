@@ -39,11 +39,6 @@ public class UILoop {
             ResponseParser parsed = new ResponseParser(response);
             String[] args = parsed.getTokens();
 
-            switch(state) {
-                case LOGGED_OUT -> this.auth = null;
-                case LOGGED_IN -> this.auth = loggedInHandler.getAuth();
-            }
-
             if (args.length > 4) {
                 System.out.println("Too many arguments. Type 'help' for a list of commands.\n");
             }
@@ -77,9 +72,12 @@ public class UILoop {
                     case LOGGED_IN -> {
                         loggedInHandler.handle(args, auth);
                         this.auth = loggedInHandler.getAuth();
-                        this.state = loggedInHandler.getState();
-                        playingHandler.setState(this.state);
-                        spectatingHandler.setState(this.state);
+                        UILoop.States newState = loggedInHandler.getState();
+                        if (newState == States.PLAYING || newState == States.SPECTATING) {
+                            playingHandler.setState(newState);
+                            spectatingHandler.setState(newState);
+                        }
+                        this.state = newState;
                     }
                     case PLAYING -> {
                         playingHandler.handle(args);

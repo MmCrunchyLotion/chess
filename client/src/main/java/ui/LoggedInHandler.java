@@ -97,7 +97,19 @@ public class LoggedInHandler extends Handler {
                 return UILoop.States.LOGGED_IN;
             }
             int gameID = lastGameList[listNumber - 1].getGameID();
+            GameData game = lastGameList[listNumber - 1];
             String color = arg2.toUpperCase();
+
+            String username = this.auth.getUsername();
+            if (color.equals("WHITE") && username.equals(game.getBlackUsername())) {
+                System.out.println("You are already playing as Black in this game\n");
+                return UILoop.States.LOGGED_IN;
+            }
+            if (color.equals("BLACK") && username.equals(game.getWhiteUsername())) {
+                System.out.println("You are already playing as White in this game\n");
+                return UILoop.States.LOGGED_IN;
+            }
+
             server.joinGame(color, gameID, this.auth.getAuthToken());
             System.out.println("Joined game " + listNumber + " as " + color + "\n");
             return UILoop.States.PLAYING;
