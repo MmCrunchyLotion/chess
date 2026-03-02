@@ -1,5 +1,6 @@
 package ui;
 
+import chess.ChessGame;
 import client.ServerFacade;
 import exception.ResponseException;
 import models.AuthData;
@@ -112,6 +113,9 @@ public class LoggedInHandler extends Handler {
 
             server.joinGame(color, gameID, this.auth.getAuthToken());
             System.out.println("Joined game " + listNumber + " as " + color + "\n");
+            ChessGame.TeamColor joinColor = arg2.equalsIgnoreCase("WHITE") ?
+                    ChessGame.TeamColor.WHITE : ChessGame.TeamColor.BLACK;
+            BoardDisplay.drawBoard(lastGameList[listNumber - 1].getGame(), joinColor);
             return UILoop.States.PLAYING;
         } catch (NumberFormatException e) {
             System.out.println("Invalid game number, must be a number\n");
@@ -130,6 +134,7 @@ public class LoggedInHandler extends Handler {
                 return UILoop.States.LOGGED_IN;
             }
             System.out.println("Spectating game " + listNumber + "\n");
+            BoardDisplay.drawBoard(lastGameList[listNumber - 1].getGame(), ChessGame.TeamColor.WHITE);
             return UILoop.States.SPECTATING;
         } catch (NumberFormatException e) {
             System.out.println("Invalid game number, must be a number\n");
