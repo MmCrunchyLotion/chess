@@ -2,9 +2,9 @@ package ui;
 
 import client.ServerFacade;
 
-public class PlayingHandler  extends Handler {
+public class PlayingHandler extends Handler {
 
-    private ServerFacade server;
+    private final ServerFacade server;
     private UILoop.States state;
 
     public PlayingHandler(ServerFacade facade) {
@@ -14,25 +14,26 @@ public class PlayingHandler  extends Handler {
 
     public void handle(String[] args) {
         setArgs(args);
-        switch (arg0) {
+        switch (arg0.toLowerCase()) {
             case "help" -> help();
             case "move" -> move(args);
             case "quit" -> this.state = quit();
-            default -> System.out.println("Invalid command\n");
+            default -> System.out.println("Unknown command. Type 'help' for a list of commands.\n");
         }
         clearArgs();
     }
 
     private static void help() {
-        System.out.println("help - shows possible commands\n");
-        System.out.println("move <FROM> <TO> - move a piece\n");
-        System.out.println("quit - exit a chess game\n");
-        System.out.println("exit - exit the client\n");
+        System.out.println("Available commands:");
+        System.out.println("  help          - shows possible commands");
+        System.out.println("  move <FROM> <TO> - move a piece (e.g. move e2 e4)");
+        System.out.println("  quit          - exit the current game");
+        System.out.println("  exit          - exit the client\n");
     }
 
     private void move(String[] args) {
         if (args.length != 3) {
-            System.out.println("Incorrect number of parameters\n");
+            System.out.println("Usage: move <FROM> <TO> (e.g. move e2 e4)\n");
         } else {
             // TODO: implement move logic when websocket is added
             System.out.println("Moving from " + arg1 + " to " + arg2 + "\n");

@@ -4,7 +4,7 @@ import client.ServerFacade;
 
 public class SpectatingHandler extends Handler {
 
-    private ServerFacade server;
+    private final ServerFacade server;
     private UILoop.States state;
 
     public SpectatingHandler(ServerFacade facade) {
@@ -14,18 +14,19 @@ public class SpectatingHandler extends Handler {
 
     public void handle(String[] args) {
         setArgs(args);
-        switch (arg0) {
+        switch (arg0.toLowerCase()) {
             case "help" -> help();
             case "quit" -> this.state = quit();
-            default -> System.out.println("Invalid command\n");
+            default -> System.out.println("Unknown command. Type 'help' for a list of commands.\n");
         }
         clearArgs();
     }
 
     private static void help() {
-        System.out.println("help - shows possible commands\n");
-        System.out.println("quit - exit a chess game\n");
-        System.out.println("exit - exit the client\n");
+        System.out.println("Available commands:");
+        System.out.println("  help  - shows possible commands");
+        System.out.println("  quit  - stop spectating");
+        System.out.println("  exit  - exit the client\n");
     }
 
     public UILoop.States quit() {

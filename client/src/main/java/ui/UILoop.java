@@ -1,78 +1,100 @@
 package ui;
 
 import client.ServerFacade;
-import static java.lang.Boolean.TRUE;
+import exception.ResponseException;
+import models.AuthData;
+import java.util.Scanner;
 
 public class UILoop {
 
-    public enum states {
+    private AuthData auth;
+    private States state;
+    private final Scanner scanner = new Scanner(System.in);
+
+    public enum States {
         LOGGED_OUT,
         LOGGED_IN,
         PLAYING,
         SPECTATING
     }
 
-    public static void UILoop() {
-        states state = states.LOGGED_OUT;
-        String response;
+    public UILoop() {
+        this.auth = null;
+        this.state = States.LOGGED_OUT;
+    }
+
+    public void startUILoop() throws ResponseException {
         ServerFacade facade = new ServerFacade("http://localhost:8080");
         LoggedOutHandler loggedOutHandler = new LoggedOutHandler(facade);
         LoggedInHandler loggedInHandler = new LoggedInHandler(facade);
         PlayingHandler playingHandler = new PlayingHandler(facade);
         SpectatingHandler spectatingHandler = new SpectatingHandler(facade);
 
-        while (TRUE) {
-            response = System.in.toString();
+        boolean running = true;
+        while (running) {
+            System.out.printf("[%s] >>> ", state);
+            String response = scanner.nextLine().trim();
+            if (response.isEmpty()) continue;
+
             ResponseParser parsed = new ResponseParser(response);
             String[] args = parsed.getTokens();
-            if (args.length >= 5 || args.length == 0) {
+
+            switch(state) {
+                case LOGGED_OUT -> this.auth = null;
+                case LOGGED_IN -> this.auth = loggedInHandler.getAuth();
+            }
+
+            if (args.length > 4) {
+                System.out.println("Too many arguments. Type 'help' for a list of commands.\n");
+            }
+            if (args.length == 0) {
                 System.out.println("Invalid command\n");
             }
-            if (args[0].equals("exit")) {
-                if (state != states.LOGGED_OUT) {
-                    loggedInHandler.logout();
-                    if (state == states.PLAYING) {
-                        playingHandler.quit();
-                    } else if (state == states.SPECTATING) {
-                        spectatingHandler.quit();
+
+            if (args[0].equalsIgnoreCase("exit")) {
+                switch (this.state) {
+                    case PLAYING -> this.state = playingHandler.quit();
+                    case SPECTATING -> this.state = spectatingHandler.quit();
+                    case LOGGED_IN -> {
+                        this.state = loggedInHandler.logout(args);
+                        running = false;
+                    }
+                    case LOGGED_OUT -> running = false;
+                }
+                continue;
+            }
+
+            try {
+                switch (state) {
+                    case LOGGED_OUT -> {
+                        loggedOutHandler.handle(args);
+                        this.auth = loggedOutHandler.getAuth();
+                        if (this.auth != null) {
+                            this.state = States.LOGGED_IN;
+                            loggedInHandler.setState(States.LOGGED_IN);
+                        }
+                    }
+                    case LOGGED_IN -> {
+                        loggedInHandler.handle(args, auth);
+                        this.auth = loggedInHandler.getAuth();
+                        this.state = loggedInHandler.getState();
+                        playingHandler.setState(this.state);
+                        spectatingHandler.setState(this.state);
+                    }
+                    case PLAYING -> {
+                        playingHandler.handle(args);
+                        this.state = playingHandler.getState();
+                    }
+                    case SPECTATING -> {
+                        spectatingHandler.handle(args);
+                        this.state = spectatingHandler.getState();
                     }
                 }
-                break;
-            } else if (args[0].equals("help")) {
-                help(state);
-            } else if (state == states.LOGGED_OUT) {
-                loggedOutHandler.handle(args);
-            } else if (state == states.LOGGED_IN) {
-                loggedInHandler.handle(args);
-            } else if (state == states.PLAYING) {
-                playingHandler.handle(args);
-            } else if (state == states.SPECTATING) {
-                spectatingHandler.handle(args);
+            } catch (ResponseException e) {
+                System.out.println("Error: " + e.getMessage() + "\n");
             }
-            System.out.printf("[%s] >>> ", state);
         }
-        // close server
-    }
-
-    public static void help(states state) {
-        if (state == states.LOGGED_IN) {
-            System.out.println("help - shows possible commands\n");
-            System.out.println("logout - logout current user\n");
-            System.out.println("create <GAMENAME> - create a new chess game\n");
-            System.out.println("list -  list existing chess games\n");
-            System.out.println("join <GAMENAME> <COLOR> - join a chess game\n");
-            System.out.println("exit - exit the client\n");
-        }
-        if (state == states.PLAYING) {
-            System.out.println("help - shows possible commands\n");
-            System.out.println("move <MOVE> - move a piece\n");
-            System.out.println("quit - exit a chess game\n");
-            System.out.println("exit - exit the client\n");
-        }
-        if (state == states.SPECTATING) {
-            System.out.println("help - shows possible commands\n");
-            System.out.println("quit - exit a chess game\n");
-            System.out.println("exit - exit the client\n");
-        }
+        System.out.println("Goodbye!");
+        scanner.close();
     }
 }
