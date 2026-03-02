@@ -45,39 +45,34 @@ public class BoardDisplay {
         printColumnLabels(true);
     }
 
-    private static void printColumnLabels(boolean reversed) {
-        System.out.print(BORDER_BG + BORDER_TEXT + "   ");
-        String[] cols = {"a", "b", "c", "d", "e", "f", "g", "h"};
-        if (reversed) {
-            for (int i = 7; i >= 0; i--) {
-                System.out.print(" " + cols[i] + " ");
-            }
-        } else {
-            for (String col : cols) {
-                System.out.print(" " + col + " ");
-            }
-        }
-        System.out.print("   ");
-        System.out.println(RESET);
-    }
-
     private static void printRow(ChessBoard board, int row, boolean reversed) {
-        System.out.print(BORDER_BG + BORDER_TEXT + " " + row + " ");
-
+        System.out.print(BORDER_BG + BORDER_TEXT + " " + row + "\u2003");  // em-space after row number
         if (reversed) {
-            // black perspective
             for (int col = 8; col >= 1; col--) {
                 printSquare(board, row, col);
             }
         } else {
-            // white perspective
             for (int col = 1; col <= 8; col++) {
                 printSquare(board, row, col);
             }
         }
-
-        System.out.print(BORDER_BG + BORDER_TEXT + " " + row + " ");
+        System.out.print(BORDER_BG + BORDER_TEXT + " " + row + "\u2003");
         System.out.println(RESET);
+    }
+
+    private static void printColumnLabels(boolean reversed) {
+        System.out.print(BORDER_BG + BORDER_TEXT + "  \u2003");
+        String[] cols = {"a", "b", "c", "d", "e", "f", "g", "h"};
+        if (reversed) {
+            for (int i = 7; i >= 0; i--) {
+                System.out.print(" " + cols[i] + "\u2003");
+            }
+        } else {
+            for (String col : cols) {
+                System.out.print(" " + col + "\u2003");
+            }
+        }
+        System.out.println("  \u2003" + RESET);
     }
 
     private static void printSquare(ChessBoard board, int row, int col) {

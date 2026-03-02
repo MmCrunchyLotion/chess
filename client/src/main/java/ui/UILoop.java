@@ -47,9 +47,21 @@ public class UILoop {
             }
 
             if (args[0].equalsIgnoreCase("quit")) {
+                if (args.length != 1) {
+                    System.out.println("Usage: quit\n");
+                    continue;
+                }
                 switch (this.state) {
-                    case PLAYING -> this.state = playingHandler.leave();
-                    case SPECTATING -> this.state = spectatingHandler.leave();
+                    case PLAYING, SPECTATING -> {
+                        try {
+                            if (this.auth != null) {
+                                loggedInHandler.logout(new String[]{"logout"});
+                            }
+                        } catch (ResponseException e) {
+                            System.out.println("Error logging out: " + e.getMessage() + "\n");
+                        }
+                        running = false;
+                    }
                     case LOGGED_IN -> {
                         this.state = loggedInHandler.logout(args);
                         running = false;
