@@ -15,6 +15,7 @@ public class ChessGame {
 
     private ChessBoard board;
     private ChessGame.TeamColor TeamTurn;
+    private boolean gameOver = false;
 
     public ChessGame() {
         this.board = new ChessBoard();
@@ -269,6 +270,17 @@ public class ChessGame {
         return (teamColor == TeamColor.WHITE) ? TeamColor.BLACK : TeamColor.WHITE;
     }
 
+    public boolean isGameOver() {
+        return gameOver ||
+                isInCheckmate(TeamColor.WHITE) ||
+                isInCheckmate(TeamColor.BLACK) ||
+                isInStalemate(TeamColor.WHITE) ||
+                isInStalemate(TeamColor.BLACK);
+    }
+
+    public void setGameOver(boolean gameOver) {
+        this.gameOver = gameOver;
+    }
 
     /**
      * Sets this game's chessboard with a given board
@@ -292,6 +304,7 @@ public class ChessGame {
         ChessGame copy = new ChessGame();
         copy.setBoard(board.copy());
         copy.setTeamTurn(getTeamTurn());
+        copy.setGameOver(this.gameOver);
         return copy;
     }
 
