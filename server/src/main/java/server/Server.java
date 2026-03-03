@@ -35,6 +35,12 @@ public class Server {
                 .post("/game", this::createGame)
                 .put("/game", this::joinGame)
                 .delete("/db", this::clear)
+                .ws("/ws", ws -> {
+                    WebSocketHandler wsHandler = new WebSocketHandler(authDAO, gameDAO);
+                    ws.onMessage(ctx -> wsHandler.onMessage(ctx.session, ctx.message()));
+                    ws.onError(ctx -> wsHandler.onError(ctx.session, ctx.error()));
+                    ws.onClose(ctx -> wsHandler.onClose(ctx.session, ctx.status(), ctx.reason()));
+                })
                 .exception(ResponseException.class, this::exceptionHandler);
     }
 
