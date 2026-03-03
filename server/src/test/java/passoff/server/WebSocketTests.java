@@ -1,3 +1,5 @@
+package passoff.server;
+
 import chess.*;
 import org.junit.jupiter.api.*;
 import passoff.model.*;

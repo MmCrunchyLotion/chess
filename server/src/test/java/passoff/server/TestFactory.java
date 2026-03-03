@@ -1,3 +1,5 @@
+package passoff.server;
+
 import com.google.gson.GsonBuilder;
 
 public class TestFactory {

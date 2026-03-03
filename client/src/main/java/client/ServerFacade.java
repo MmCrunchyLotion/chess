@@ -93,4 +93,7 @@ public class ServerFacade {
         }
     }
 
+    public String getServerUrl() {
+        return serverUrl;
+    }
 }
