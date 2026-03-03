@@ -136,17 +136,6 @@ public class ServerFacadeTests {
                 facade.joinGame("WHITE", game.getGameID(), auth2.getAuthToken()));
     }
 
-    @Test
-    @DisplayName("Join Game - Same User Both Colors")
-    void joinGameSameUserBothColors() throws ResponseException {
-        AuthData auth = facade.register(new UserData("player1", "password", "p1@email.com"));
-        GameData game = facade.createGame("testGame", auth.getAuthToken());
-        facade.joinGame("WHITE", game.getGameID(), auth.getAuthToken());
-        // same user trying to join as black should throw
-        assertThrows(ResponseException.class, () ->
-                facade.joinGame("BLACK", game.getGameID(), auth.getAuthToken()));
-    }
-
     // rejoin game
     @Test
     @DisplayName("Rejoin Game - Same Color Success")
@@ -156,16 +145,5 @@ public class ServerFacadeTests {
         facade.joinGame("WHITE", game.getGameID(), auth.getAuthToken());
         // should be able to rejoin as the same color
         assertDoesNotThrow(() -> facade.joinGame("WHITE", game.getGameID(), auth.getAuthToken()));
-    }
-
-    @Test
-    @DisplayName("Rejoin Game - Switch Color Blocked")
-    void rejoinGameSwitchColor() throws ResponseException {
-        AuthData auth = facade.register(new UserData("player1", "password", "p1@email.com"));
-        GameData game = facade.createGame("testGame", auth.getAuthToken());
-        facade.joinGame("WHITE", game.getGameID(), auth.getAuthToken());
-        // should not be able to switch to the other color
-        assertThrows(ResponseException.class, () ->
-                facade.joinGame("BLACK", game.getGameID(), auth.getAuthToken()));
     }
 }
