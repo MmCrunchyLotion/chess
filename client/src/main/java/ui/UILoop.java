@@ -26,9 +26,9 @@ public class UILoop {
     public void startUILoop() throws ResponseException {
         ServerFacade facade = new ServerFacade("http://localhost:8080");
         LoggedOutHandler loggedOutHandler = new LoggedOutHandler(facade);
-        LoggedInHandler loggedInHandler = new LoggedInHandler(facade);
-        PlayingHandler playingHandler = new PlayingHandler(facade);
-        SpectatingHandler spectatingHandler = new SpectatingHandler(facade);
+        PlayingHandler[] playingHandler = {null};
+        SpectatingHandler[] spectatingHandler = {null};
+        LoggedInHandler loggedInHandler = new LoggedInHandler(facade, playingHandler, spectatingHandler);
 
         boolean running = true;
         while (running) {
@@ -41,9 +41,11 @@ public class UILoop {
 
             if (args.length > 4) {
                 System.out.println("Too many arguments. Type 'help' for a list of commands.\n");
+                continue;
             }
             if (args.length == 0) {
                 System.out.println("Invalid command\n");
+                continue;
             }
 
             if (args[0].equalsIgnoreCase("quit")) {
@@ -51,23 +53,28 @@ public class UILoop {
                     System.out.println("Usage: quit\n");
                     continue;
                 }
-                switch (this.state) {
-                    case PLAYING, SPECTATING -> {
+                if (state == States.PLAYING || state == States.SPECTATING) {
+                    if (auth != null) {
                         try {
-                            if (this.auth != null) {
-                                loggedInHandler.logout(new String[]{"logout"});
+                            if (state == States.PLAYING && playingHandler[0] != null) {
+                                playingHandler[0].leave();
+                            } else if (state == States.SPECTATING && spectatingHandler[0] != null) {
+                                spectatingHandler[0].leave();
                             }
                         } catch (ResponseException e) {
-                            System.out.println("Error logging out: " + e.getMessage() + "\n");
+                            System.out.println("Error leaving game: " + e.getMessage());
                         }
-                        running = false;
                     }
-                    case LOGGED_IN -> {
-                        this.state = loggedInHandler.logout(args);
-                        running = false;
+                } else if (state == States.LOGGED_IN) {
+                    if (auth != null) {
+                        try {
+                            loggedInHandler.logout(new String[]{"logout"}, auth);
+                        } catch (ResponseException e) {
+                            System.out.println("Error logging out: " + e.getMessage());
+                        }
                     }
-                    case LOGGED_OUT -> running = false;
                 }
+                running = false;
                 continue;
             }
 
@@ -83,21 +90,19 @@ public class UILoop {
                     }
                     case LOGGED_IN -> {
                         loggedInHandler.handle(args, auth);
-                        this.auth = loggedInHandler.getAuth();
-                        UILoop.States newState = loggedInHandler.getState();
-                        if (newState == States.PLAYING || newState == States.SPECTATING) {
-                            playingHandler.setState(newState);
-                            spectatingHandler.setState(newState);
-                        }
-                        this.state = newState;
+                        this.state = loggedInHandler.getState();
                     }
                     case PLAYING -> {
-                        playingHandler.handle(args);
-                        this.state = playingHandler.getState();
+                        if (playingHandler[0] != null) {
+                            playingHandler[0].handle(args);
+                            this.state = playingHandler[0].getState();
+                        }
                     }
                     case SPECTATING -> {
-                        spectatingHandler.handle(args);
-                        this.state = spectatingHandler.getState();
+                        if (spectatingHandler[0] != null) {
+                            spectatingHandler[0].handle(args);
+                            this.state = spectatingHandler[0].getState();
+                        }
                     }
                 }
             } catch (ResponseException e) {

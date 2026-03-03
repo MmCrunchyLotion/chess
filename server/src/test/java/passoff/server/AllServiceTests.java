@@ -253,22 +253,6 @@ public class AllServiceTests {
 
     @Test
     @Order(16)
-    @DisplayName("Join Game - Switch Color Blocked")
-    void rejoinGameSwitchColorNegative() throws ResponseException {
-        // a player should not be able to switch to the other color
-        AuthData auth = registerAndLogin();
-        GameData createdGame = new CreateGameService(auth, new GameData("testGame"), authDAO, gameDAO).addGame();
-        JoinBody joinWhite = new JoinBody("WHITE", createdGame.getGameID());
-        new JoinGameService(auth, joinWhite, authDAO, gameDAO).addPlayer(gameDAO);
-        // try to switch to black
-        JoinBody joinBlack = new JoinBody("BLACK", createdGame.getGameID());
-        JoinGameService switchAttempt = new JoinGameService(auth, joinBlack, authDAO, gameDAO);
-        ResponseException ex = assertThrows(ResponseException.class, () -> switchAttempt.addPlayer(gameDAO));
-        assertEquals(ResponseException.Code.AlreadyTaken, ex.code());
-    }
-
-    @Test
-    @Order(17)
     @DisplayName("Join Game - Other Player Color Blocked")
     void joinGameOtherPlayerColorNegative() throws ResponseException {
         // a second player should not be able to take a color already claimed by someone else

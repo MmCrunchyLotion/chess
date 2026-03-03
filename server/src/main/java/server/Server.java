@@ -27,6 +27,8 @@ public class Server {
             throw new RuntimeException("Error: Failed to initialize DAOs: " + e.getMessage());
         }
 
+        WebSocketHandler wsHandler = new WebSocketHandler(authDAO, gameDAO);
+
         javalin = Javalin.create(config -> config.staticFiles.add("web"))
                 .post("/user", this::registerUser)
                 .post("/session", this::login)
@@ -35,6 +37,11 @@ public class Server {
                 .post("/game", this::createGame)
                 .put("/game", this::joinGame)
                 .delete("/db", this::clear)
+                .ws("/ws", ws -> {
+                    ws.onMessage(ctx -> wsHandler.onMessage(ctx.session, ctx.message()));
+                    ws.onError(ctx -> wsHandler.onError(ctx.session, ctx.error()));
+                    ws.onClose(ctx -> wsHandler.onClose(ctx.session, ctx.status(), ctx.reason()));
+                })
                 .exception(ResponseException.class, this::exceptionHandler);
     }
 
@@ -91,7 +98,8 @@ public class Server {
         try {
             ListGamesService listGamesRequest = new ListGamesService(auth, authDAO, gameDAO);
             Collection<GameData> games = listGamesRequest.list();
-            String message = new Gson().toJson(Map.of("games", games));
+            var summaries = games.stream().map(g -> new GameSummary(g.getGameID(), g.getGameName(), g.getWhiteUsername(), g.getBlackUsername())).toList();
+            String message = new Gson().toJson(Map.of("games", summaries));
             ctx.result(message);
         } catch (ResponseException ex) {
             exceptionHandler(ex, ctx);

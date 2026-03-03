@@ -121,6 +121,12 @@ public class GameDAO extends MySqlDataAccess {
         executeUpdate(sql, gameState, gameID);
     }
 
+    public void clearUser(String color, int gameID) throws DataAccessException {
+        String column = color.equals("WHITE") ? "whiteUserID" : "blackUserID";
+        String sql = "UPDATE game SET " + column + " = NULL WHERE id = ?";
+        executeUpdate(sql, gameID);
+    }
+
     public void clear() throws DataAccessException {
         executeUpdate("TRUNCATE TABLE game");
     }

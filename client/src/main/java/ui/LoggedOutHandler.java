@@ -16,6 +16,7 @@ public class LoggedOutHandler extends Handler {
     }
 
     public void handle(String[] args) throws ResponseException {
+        this.auth = null;
         setArgs(args);
         switch (arg0.toLowerCase()) {
             case "help" -> help();

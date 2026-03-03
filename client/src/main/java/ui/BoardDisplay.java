@@ -102,4 +102,78 @@ public class BoardDisplay {
             case PAWN -> isWhite ? EscapeSequences.WHITE_PAWN : EscapeSequences.BLACK_PAWN;
         };
     }
+
+    public static void drawBoardWithHighlights(ChessGame game, ChessGame.TeamColor perspective,
+                                               ChessPosition selected, java.util.Collection<ChessMove> legalMoves) {
+        boolean isWhite = perspective == ChessGame.TeamColor.WHITE || perspective == null;
+        System.out.println();
+        if (isWhite) {
+            drawFromWhitePerspectiveWithHighlights(game.getBoard(), selected, legalMoves);
+        } else {
+            drawFromBlackPerspectiveWithHighlights(game.getBoard(), selected, legalMoves);
+        }
+        System.out.println();
+    }
+
+    private static void drawFromWhitePerspectiveWithHighlights(ChessBoard board,
+                                                               ChessPosition selected, java.util.Collection<ChessMove> legalMoves) {
+        printColumnLabels(false);
+        for (int row = 8; row >= 1; row--) {
+            printRowWithHighlights(board, row, false, selected, legalMoves);
+        }
+        printColumnLabels(false);
+    }
+
+    private static void drawFromBlackPerspectiveWithHighlights(ChessBoard board,
+                                                               ChessPosition selected, java.util.Collection<ChessMove> legalMoves) {
+        printColumnLabels(true);
+        for (int row = 1; row <= 8; row++) {
+            printRowWithHighlights(board, row, true, selected, legalMoves);
+        }
+        printColumnLabels(true);
+    }
+
+    private static void printRowWithHighlights(ChessBoard board, int row, boolean reversed,
+                                               ChessPosition selected, java.util.Collection<ChessMove> legalMoves) {
+        System.out.print(BORDER_BG + BORDER_TEXT + " " + row + " ");
+        if (reversed) {
+            for (int col = 8; col >= 1; col--) {
+                printSquareWithHighlight(board, row, col, selected, legalMoves);
+            }
+        } else {
+            for (int col = 1; col <= 8; col++) {
+                printSquareWithHighlight(board, row, col, selected, legalMoves);
+            }
+        }
+        System.out.print(BORDER_BG + BORDER_TEXT + " " + row + " ");
+        System.out.println(RESET);
+    }
+
+    private static void printSquareWithHighlight(ChessBoard board, int row, int col,
+                                                 ChessPosition selected, java.util.Collection<ChessMove> legalMoves) {
+        ChessPosition currentPos = new ChessPosition(row, col);
+        boolean isSelected = currentPos.equals(selected);
+        boolean isLegalMove = legalMoves != null && legalMoves.stream()
+                .anyMatch(m -> m.getEndPosition().equals(currentPos));
+
+        String bgColor;
+        if (isSelected) {
+            bgColor = EscapeSequences.SET_BG_COLOR_YELLOW;
+        } else if (isLegalMove) {
+            bgColor = EscapeSequences.SET_BG_COLOR_GREEN;
+        } else {
+            boolean isLight = (row + col) % 2 != 0;
+            bgColor = isLight ? LIGHT_SQUARE : DARK_SQUARE;
+        }
+        System.out.print(bgColor);
+
+        ChessPosition pos = board.getGridPosition(row, col);
+        ChessPiece piece = pos.getOccupied();
+        if (piece == null) {
+            System.out.print(EscapeSequences.EMPTY);
+        } else {
+            String pieceColor = piece.getTeamColor() == ChessGame.TeamColor.WHITE ? WHITE_PIECE : BLACK_PIECE;
+            System.out.print(pieceColor + getPieceSymbol(piece) + EscapeSequences.RESET_TEXT_COLOR);
+        }
+    }
 }
