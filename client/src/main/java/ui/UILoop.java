@@ -53,23 +53,28 @@ public class UILoop {
                     System.out.println("Usage: quit\n");
                     continue;
                 }
-                switch (this.state) {
-                    case PLAYING, SPECTATING -> {
+                if (state == States.PLAYING || state == States.SPECTATING) {
+                    if (auth != null) {
                         try {
-                            if (this.auth != null) {
-                                loggedInHandler.logout(new String[]{"logout"},  this.auth);
+                            if (state == States.PLAYING && playingHandler[0] != null) {
+                                playingHandler[0].leave();
+                            } else if (state == States.SPECTATING && spectatingHandler[0] != null) {
+                                spectatingHandler[0].leave();
                             }
                         } catch (ResponseException e) {
-                            System.out.println("Error logging out: " + e.getMessage() + "\n");
+                            System.out.println("Error leaving game: " + e.getMessage());
                         }
-                        running = false;
                     }
-                    case LOGGED_IN -> {
-                        this.state = loggedInHandler.logout(args, this.auth);
-                        running = false;
+                } else if (state == States.LOGGED_IN) {
+                    if (auth != null) {
+                        try {
+                            loggedInHandler.logout(new String[]{"logout"}, auth);
+                        } catch (ResponseException e) {
+                            System.out.println("Error logging out: " + e.getMessage());
+                        }
                     }
-                    case LOGGED_OUT -> running = false;
                 }
+                running = false;
                 continue;
             }
 
@@ -85,7 +90,6 @@ public class UILoop {
                     }
                     case LOGGED_IN -> {
                         loggedInHandler.handle(args, auth);
-                        this.auth = loggedInHandler.getAuth();
                         this.state = loggedInHandler.getState();
                     }
                     case PLAYING -> {

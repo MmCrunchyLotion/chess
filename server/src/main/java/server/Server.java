@@ -98,7 +98,8 @@ public class Server {
         try {
             ListGamesService listGamesRequest = new ListGamesService(auth, authDAO, gameDAO);
             Collection<GameData> games = listGamesRequest.list();
-            String message = new Gson().toJson(Map.of("games", games));
+            var summaries = games.stream().map(g -> new GameSummary(g.getGameID(), g.getGameName(), g.getWhiteUsername(), g.getBlackUsername())).toList();
+            String message = new Gson().toJson(Map.of("games", summaries));
             ctx.result(message);
         } catch (ResponseException ex) {
             exceptionHandler(ex, ctx);
