@@ -26,10 +26,8 @@ public class WebSocketHandler {
 
     @OnWebSocketMessage
     public void onMessage(Session session, String message) throws IOException {
-        System.out.println("DEBUG: received message: " + message);
         try {
             UserGameCommand command = gson.fromJson(message, UserGameCommand.class);
-            System.out.println("DEBUG: command type: " + command.getCommandType());
             switch (command.getCommandType()) {
                 case CONNECT -> handleConnect(session, command);
                 case MAKE_MOVE -> handleMakeMove(session, command);
@@ -37,7 +35,6 @@ public class WebSocketHandler {
                 case RESIGN -> handleResign(session, command);
             }
         } catch (Exception e) {
-            System.err.println("DEBUG: exception in onMessage: " + e.getMessage());
             e.printStackTrace();
             sendError(session, "Error: " + e.getMessage());
         }
@@ -53,13 +50,10 @@ public class WebSocketHandler {
     }
 
     private void handleConnect(Session session, UserGameCommand command) throws IOException {
-        System.out.println("DEBUG: handleConnect called for gameID: " + command.getGameID());
         try {
             AuthData auth = authDAO.getAuthByToken(command.getAuthToken());
-            System.out.println("DEBUG: auth result: " + (auth != null ? auth.getUsername() : "null"));
 
             GameData game = gameDAO.getGame(command.getGameID());
-            System.out.println("DEBUG: game result: " + (game != null ? game.getGameID() : "null"));
 
             if (auth == null) {
                 sendError(session, "Error: invalid auth token");
@@ -72,23 +66,16 @@ public class WebSocketHandler {
 
             String username = auth.getUsername();
             connections.add(command.getGameID(), username, session);
-            System.out.println("DEBUG: added connection for " + username);
 
             ServerMessage loadGameMsg = ServerMessage.loadGame(game.getGame());
-            System.out.println("DEBUG: sending LOAD_GAME: " + new Gson().toJson(loadGameMsg));
             connections.sendToUser(command.getGameID(), username, loadGameMsg);
-            System.out.println("DEBUG: LOAD_GAME sent");
 
             String role = getRole(username, game);
-            connections.broadcast(command.getGameID(), username,
-                    ServerMessage.notification(username + " connected as " + role));
-            System.out.println("DEBUG: notification broadcast done");
+            connections.broadcast(command.getGameID(), username, ServerMessage.notification(username + " connected as " + role));
 
         } catch (DataAccessException e) {
-            System.err.println("DEBUG: DataAccessException: " + e.getMessage());
             sendError(session, "Error: " + e.getMessage());
         } catch (Exception e) {
-            System.err.println("DEBUG: unexpected exception: " + e.getMessage());
             e.printStackTrace();
             sendError(session, "Error: " + e.getMessage());
         }

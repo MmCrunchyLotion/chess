@@ -27,20 +27,15 @@ public class ConnectionManager {
     }
 
     public void sendToUser(int gameID, String username, ServerMessage message) throws IOException {
-        System.out.println("DEBUG ConnectionManager: sendToUser gameID=" + gameID + " username=" + username);
         ArrayList<Connection> gameConnections = connections.get(gameID);
-        System.out.println("DEBUG ConnectionManager: gameConnections=" + (gameConnections != null ? gameConnections.size() : "null"));
         if (gameConnections == null) return;
         String json = new Gson().toJson(message);
         for (Connection c : gameConnections) {
-            System.out.println("DEBUG ConnectionManager: checking connection " + c.username + " isOpen=" + c.session.isOpen());
             if (c.username.equals(username) && c.session.isOpen()) {
                 c.session.getRemote().sendString(json);
-                System.out.println("DEBUG ConnectionManager: sent to " + username);
                 return;
             }
         }
-        System.out.println("DEBUG ConnectionManager: no matching open session found for " + username);
     }
 
     public void broadcast(int gameID, String excludeUsername, ServerMessage message) throws IOException {
