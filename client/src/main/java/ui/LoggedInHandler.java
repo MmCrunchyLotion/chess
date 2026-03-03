@@ -11,7 +11,7 @@ public class LoggedInHandler extends Handler {
 
     private final ServerFacade server;
     private UILoop.States state;
-    private GameData[] lastGameList = new GameData[0];
+    private GameData[] gameList = new GameData[0];
     private final PlayingHandler[] playingHandler;
     private final SpectatingHandler[] spectatingHandler;
 
@@ -43,7 +43,7 @@ public class LoggedInHandler extends Handler {
         System.out.println("  create <NAME>                     - create a new chess game");
         System.out.println("  list                              - list existing chess games");
         System.out.println("  join <ID> [WHITE|BLACK]           - join a game as a player");
-        System.out.println("  observe <ID>                       - join a game as spectator");
+        System.out.println("  observe <ID>                      - join a game as spectator");
         System.out.println("  quit                              - exit the client\n");
     }
 
@@ -70,13 +70,13 @@ public class LoggedInHandler extends Handler {
         if (args.length != 1) {
             System.out.println("Usage: list\n");
         } else {
-            lastGameList = server.listGames(auth.getAuthToken());
-            if (lastGameList.length == 0) {
+            gameList = server.listGames(auth.getAuthToken());
+            if (gameList.length == 0) {
                 System.out.println("No games available\n");
             } else {
                 System.out.println("Available games:");
-                for (int i = 0; i < lastGameList.length; i++) {
-                    GameData game = lastGameList[i];
+                for (int i = 0; i < gameList.length; i++) {
+                    GameData game = gameList[i];
                     System.out.printf("  %d. %s | White: %s | Black: %s%n",
                             i + 1,
                             game.getGameName(),
@@ -89,24 +89,25 @@ public class LoggedInHandler extends Handler {
     }
 
     private UILoop.States join(String[] args, AuthData auth) throws ResponseException {
+        gameList = server.listGames(auth.getAuthToken());
         if (args.length != 3) {
             System.out.println("Usage: join <NUMBER> [WHITE|BLACK]\n");
             return UILoop.States.LOGGED_IN;
         }
         try {
             int listNumber = Integer.parseInt(arg1);
-            if (lastGameList.length == 0) {
-                System.out.println("Please run 'list' first\n");
+            if (gameList.length == 0) {
+                System.out.println("No games available\n");
                 return UILoop.States.LOGGED_IN;
             }
-            if (listNumber < 1 || listNumber > lastGameList.length) {
+            if (listNumber < 1 || listNumber > gameList.length) {
                 System.out.println("Invalid game number\n");
                 return UILoop.States.LOGGED_IN;
             }
 
             String username = auth.getUsername();
             String color = arg2.toUpperCase();
-            GameData game = lastGameList[listNumber - 1];
+            GameData game = gameList[listNumber - 1];
 
             if (color.equals("WHITE") && username.equals(game.getBlackUsername())) {
                 System.out.println("You are already playing as Black in this game\n");
@@ -140,16 +141,16 @@ public class LoggedInHandler extends Handler {
         }
         try {
             int listNumber = Integer.parseInt(arg1);
-            if (lastGameList.length == 0) {
+            if (gameList.length == 0) {
                 System.out.println("Please run 'list' first\n");
                 return UILoop.States.LOGGED_IN;
             }
-            if (listNumber < 1 || listNumber > lastGameList.length) {
+            if (listNumber < 1 || listNumber > gameList.length) {
                 System.out.println("Invalid game number\n");
                 return UILoop.States.LOGGED_IN;
             }
 
-            GameData game = lastGameList[listNumber - 1];
+            GameData game = gameList[listNumber - 1];
             WebSocketFacade ws = new WebSocketFacade(server.getServerUrl(), null);
             spectatingHandler[0] = new SpectatingHandler(ws, auth, game.getGameID());
             ws.setMessageHandler(spectatingHandler[0]);
@@ -165,12 +166,12 @@ public class LoggedInHandler extends Handler {
 
     private Integer getListNumber() {
         int listNumber = Integer.parseInt(arg1);
-        if (lastGameList.length == 0) {
+        if (gameList.length == 0) {
             System.out.println("Please run 'list' first to see available games\n");
             return null;
         }
-        if (listNumber < 1 || listNumber > lastGameList.length) {
-            System.out.println("Invalid game number, please choose between 1 and " + lastGameList.length + "\n");
+        if (listNumber < 1 || listNumber > gameList.length) {
+            System.out.println("Invalid game number, please choose between 1 and " + gameList.length + "\n");
             return null;
         }
         return listNumber;
