@@ -29,7 +29,7 @@ public class LoggedInHandler extends Handler {
         this.auth = auth;
         switch (arg0.toLowerCase()) {
             case "help" -> help();
-            case "logout" -> this.state = logout(args);
+            case "logout" -> this.state = logout(args,  this.auth);
             case "create" -> create(args);
             case "list" -> list(args);
             case "join" -> this.state = join(args);
@@ -50,12 +50,12 @@ public class LoggedInHandler extends Handler {
         System.out.println("  quit                              - exit the client\n");
     }
 
-    public UILoop.States logout(String[] args) throws ResponseException {
+    public UILoop.States logout(String[] args, AuthData auth) throws ResponseException {
         if (args.length != 1) {
             System.out.println("Usage: logout\n");
             return UILoop.States.LOGGED_IN;
         }
-        server.logout(this.auth.getAuthToken());
+        server.logout(auth.getAuthToken());
         this.auth = null;
         System.out.println("Logged out\n");
         return UILoop.States.LOGGED_OUT;

@@ -26,7 +26,6 @@ public class UILoop {
     public void startUILoop() throws ResponseException {
         ServerFacade facade = new ServerFacade("http://localhost:8080");
         LoggedOutHandler loggedOutHandler = new LoggedOutHandler(facade);
-        // playing and spectating handlers start as null, created when joining
         PlayingHandler[] playingHandler = {null};
         SpectatingHandler[] spectatingHandler = {null};
         LoggedInHandler loggedInHandler = new LoggedInHandler(facade, playingHandler, spectatingHandler);
@@ -58,7 +57,7 @@ public class UILoop {
                     case PLAYING, SPECTATING -> {
                         try {
                             if (this.auth != null) {
-                                loggedInHandler.logout(new String[]{"logout"});
+                                loggedInHandler.logout(new String[]{"logout"},  this.auth);
                             }
                         } catch (ResponseException e) {
                             System.out.println("Error logging out: " + e.getMessage() + "\n");
@@ -66,7 +65,7 @@ public class UILoop {
                         running = false;
                     }
                     case LOGGED_IN -> {
-                        this.state = loggedInHandler.logout(args);
+                        this.state = loggedInHandler.logout(args, this.auth);
                         running = false;
                     }
                     case LOGGED_OUT -> running = false;

@@ -31,7 +31,8 @@ public class WebSocketFacade {
         try {
             URI uri = new URI(serverUrl.replace("http", "ws") + "/ws");
             WebSocketContainer container = ContainerProvider.getWebSocketContainer();
-            container.connectToServer(this, uri);
+            container.setDefaultMaxSessionIdleTimeout(5 * 60 * 1000);
+            this.session = container.connectToServer(this, uri);
         } catch (Exception e) {
             throw new ResponseException(ResponseException.Code.ServerError, e.getMessage());
         }
@@ -71,6 +72,12 @@ public class WebSocketFacade {
     }
 
     public void sendCommand(UserGameCommand command) throws ResponseException {
+        if (session == null || !session.isOpen()) {
+            throw new ResponseException(
+                    ResponseException.Code.ServerError,
+                    "WebSocket is not connected."
+            );
+        }
         try {
             session.getBasicRemote().sendText(gson.toJson(command));
         } catch (IOException e) {
