@@ -27,6 +27,8 @@ public class Server {
             throw new RuntimeException("Error: Failed to initialize DAOs: " + e.getMessage());
         }
 
+        WebSocketHandler wsHandler = new WebSocketHandler(authDAO, gameDAO);
+
         javalin = Javalin.create(config -> config.staticFiles.add("web"))
                 .post("/user", this::registerUser)
                 .post("/session", this::login)
@@ -36,7 +38,6 @@ public class Server {
                 .put("/game", this::joinGame)
                 .delete("/db", this::clear)
                 .ws("/ws", ws -> {
-                    WebSocketHandler wsHandler = new WebSocketHandler(authDAO, gameDAO);
                     ws.onMessage(ctx -> wsHandler.onMessage(ctx.session, ctx.message()));
                     ws.onError(ctx -> wsHandler.onError(ctx.session, ctx.error()));
                     ws.onClose(ctx -> wsHandler.onClose(ctx.session, ctx.status(), ctx.reason()));

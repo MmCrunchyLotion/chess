@@ -32,15 +32,21 @@ public class ServerMessage {
     }
 
     public static ServerMessage loadGame(ChessGame game) {
-        return null;
+        ServerMessage msg = new ServerMessage(ServerMessageType.LOAD_GAME);
+        msg.game = game;
+        return msg;
     }
 
     public static ServerMessage notification(String message) {
-        return null;
+        ServerMessage msg = new ServerMessage(ServerMessageType.NOTIFICATION);
+        msg.message = message;
+        return msg;
     }
 
     public static ServerMessage error(String errorMessage) {
-        return null;
+        ServerMessage msg = new ServerMessage(ServerMessageType.ERROR);
+        msg.errorMessage = errorMessage;
+        return msg;
     }
 
     public ChessGame getGame() { return game; }
