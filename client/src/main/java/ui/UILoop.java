@@ -26,9 +26,10 @@ public class UILoop {
     public void startUILoop() throws ResponseException {
         ServerFacade facade = new ServerFacade("http://localhost:8080");
         LoggedOutHandler loggedOutHandler = new LoggedOutHandler(facade);
-        LoggedInHandler loggedInHandler = new LoggedInHandler(facade);
-        PlayingHandler playingHandler = new PlayingHandler(facade);
-        SpectatingHandler spectatingHandler = new SpectatingHandler(facade);
+        // playing and spectating handlers start as null, created when joining
+        PlayingHandler[] playingHandler = {null};
+        SpectatingHandler[] spectatingHandler = {null};
+        LoggedInHandler loggedInHandler = new LoggedInHandler(facade, playingHandler, spectatingHandler);
 
         boolean running = true;
         while (running) {
@@ -41,9 +42,11 @@ public class UILoop {
 
             if (args.length > 4) {
                 System.out.println("Too many arguments. Type 'help' for a list of commands.\n");
+                continue;
             }
             if (args.length == 0) {
                 System.out.println("Invalid command\n");
+                continue;
             }
 
             if (args[0].equalsIgnoreCase("quit")) {
@@ -84,20 +87,19 @@ public class UILoop {
                     case LOGGED_IN -> {
                         loggedInHandler.handle(args, auth);
                         this.auth = loggedInHandler.getAuth();
-                        UILoop.States newState = loggedInHandler.getState();
-                        if (newState == States.PLAYING || newState == States.SPECTATING) {
-                            playingHandler.setState(newState);
-                            spectatingHandler.setState(newState);
-                        }
-                        this.state = newState;
+                        this.state = loggedInHandler.getState();
                     }
                     case PLAYING -> {
-                        playingHandler.handle(args);
-                        this.state = playingHandler.getState();
+                        if (playingHandler[0] != null) {
+                            playingHandler[0].handle(args);
+                            this.state = playingHandler[0].getState();
+                        }
                     }
                     case SPECTATING -> {
-                        spectatingHandler.handle(args);
-                        this.state = spectatingHandler.getState();
+                        if (spectatingHandler[0] != null) {
+                            spectatingHandler[0].handle(args);
+                            this.state = spectatingHandler[0].getState();
+                        }
                     }
                 }
             } catch (ResponseException e) {

@@ -2,6 +2,7 @@ package ui;
 
 import chess.ChessGame;
 import client.ServerFacade;
+import client.WebSocketFacade;
 import exception.ResponseException;
 import models.AuthData;
 import models.GameData;
@@ -12,9 +13,13 @@ public class LoggedInHandler extends Handler {
     private AuthData auth;
     private UILoop.States state;
     private GameData[] lastGameList = new GameData[0];
+    private final PlayingHandler[] playingHandler;
+    private final SpectatingHandler[] spectatingHandler;
 
-    public LoggedInHandler(ServerFacade facade) {
+    public LoggedInHandler(ServerFacade facade, PlayingHandler[] playingHandler, SpectatingHandler[] spectatingHandler) {
         this.server = facade;
+        this.playingHandler = playingHandler;
+        this.spectatingHandler = spectatingHandler;
         this.auth = null;
         this.state = UILoop.States.LOGGED_IN;
     }
@@ -93,15 +98,19 @@ public class LoggedInHandler extends Handler {
             return UILoop.States.LOGGED_IN;
         }
         try {
-            Integer listNumber = getListNumber();
-            if (listNumber == null) {
+            int listNumber = Integer.parseInt(arg1);
+            if (lastGameList.length == 0) {
+                System.out.println("Please run 'list' first\n");
                 return UILoop.States.LOGGED_IN;
             }
-            int gameID = lastGameList[listNumber - 1].getGameID();
-            GameData game = lastGameList[listNumber - 1];
-            String color = arg2.toUpperCase();
-
+            if (listNumber < 1 || listNumber > lastGameList.length) {
+                System.out.println("Invalid game number\n");
+                return UILoop.States.LOGGED_IN;
+            }
             String username = this.auth.getUsername();
+            String color = arg2.toUpperCase();
+            GameData game = lastGameList[listNumber - 1];
+
             if (color.equals("WHITE") && username.equals(game.getBlackUsername())) {
                 System.out.println("You are already playing as Black in this game\n");
                 return UILoop.States.LOGGED_IN;
@@ -111,11 +120,16 @@ public class LoggedInHandler extends Handler {
                 return UILoop.States.LOGGED_IN;
             }
 
-            server.joinGame(color, gameID, this.auth.getAuthToken());
-            System.out.println("Joined game " + listNumber + " as " + color + "\n");
-            ChessGame.TeamColor joinColor = arg2.equalsIgnoreCase("WHITE") ?
+            server.joinGame(color, game.getGameID(), this.auth.getAuthToken());
+            ChessGame.TeamColor teamColor = color.equals("WHITE") ?
                     ChessGame.TeamColor.WHITE : ChessGame.TeamColor.BLACK;
-            BoardDisplay.drawBoard(lastGameList[listNumber - 1].getGame(), joinColor);
+
+            WebSocketFacade ws = new WebSocketFacade(server.getServerUrl(), null);
+            playingHandler[0] = new PlayingHandler(ws, auth, game.getGameID(), teamColor);
+            ws.setMessageHandler(playingHandler[0]);
+            ws.connect(auth.getAuthToken(), game.getGameID());
+
+            System.out.println("Joined game " + listNumber + " as " + color + "\n");
             return UILoop.States.PLAYING;
         } catch (NumberFormatException e) {
             System.out.println("Invalid game number, must be a number\n");
@@ -123,18 +137,29 @@ public class LoggedInHandler extends Handler {
         }
     }
 
-    private UILoop.States observe(String[] args) {
+    private UILoop.States observe(String[] args) throws ResponseException {
         if (args.length != 2) {
             System.out.println("Usage: observe <NUMBER>\n");
             return UILoop.States.LOGGED_IN;
         }
         try {
-            Integer listNumber = getListNumber();
-            if (listNumber == null) {
+            int listNumber = Integer.parseInt(arg1);
+            if (lastGameList.length == 0) {
+                System.out.println("Please run 'list' first\n");
                 return UILoop.States.LOGGED_IN;
             }
+            if (listNumber < 1 || listNumber > lastGameList.length) {
+                System.out.println("Invalid game number\n");
+                return UILoop.States.LOGGED_IN;
+            }
+            GameData game = lastGameList[listNumber - 1];
+
+            WebSocketFacade ws = new WebSocketFacade(server.getServerUrl(), null);
+            spectatingHandler[0] = new SpectatingHandler(ws, auth, game.getGameID());
+            ws.setMessageHandler(spectatingHandler[0]);
+            ws.connect(auth.getAuthToken(), game.getGameID());
+
             System.out.println("Spectating game " + listNumber + "\n");
-            BoardDisplay.drawBoard(lastGameList[listNumber - 1].getGame(), ChessGame.TeamColor.WHITE);
             return UILoop.States.SPECTATING;
         } catch (NumberFormatException e) {
             System.out.println("Invalid game number, must be a number\n");
