@@ -71,7 +71,9 @@ public class ServerFacade {
             }
             http.connect();
             if (http.getResponseCode() / 100 == 2) {
-                if (responseClass == null) return null;
+                if (responseClass == null) {
+                    return null;
+                }
                 try (InputStream is = http.getInputStream();
                      Reader reader = new InputStreamReader(is)) {
                     return gson.fromJson(reader, responseClass);

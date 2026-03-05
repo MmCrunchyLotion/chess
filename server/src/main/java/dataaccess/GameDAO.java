@@ -97,7 +97,9 @@ public class GameDAO extends MySqlDataAccess {
              PreparedStatement ps = conn.prepareStatement(getUserID)) {
             ps.setString(1, username);
             try (ResultSet rs = ps.executeQuery()) {
-                if (!rs.next()) throw new DataAccessException("Error: user not found: " + username);
+                if (!rs.next()) {
+                    throw new DataAccessException("Error: user not found: " + username);
+                }
                 userID = rs.getInt("id");
             }
         } catch (SQLException e) {

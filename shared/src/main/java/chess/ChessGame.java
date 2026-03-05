@@ -14,20 +14,20 @@ import java.util.Objects;
 public class ChessGame {
 
     private ChessBoard board;
-    private ChessGame.TeamColor TeamTurn;
+    private ChessGame.TeamColor teamTurn;
     private boolean gameOver = false;
 
     public ChessGame() {
         this.board = new ChessBoard();
         board.resetBoard();
-        this.TeamTurn = TeamColor.WHITE;
+        this.teamTurn = TeamColor.WHITE;
     }
 
     /**
      * @return Which team's turn it is
      */
     public TeamColor getTeamTurn() {
-        return this.TeamTurn;
+        return this.teamTurn;
     }
 
     /**
@@ -36,7 +36,7 @@ public class ChessGame {
      * @param team the team whose turn it is
      */
     public void setTeamTurn(TeamColor team) {
-        this.TeamTurn = team;
+        this.teamTurn = team;
     }
 
     /**
@@ -100,7 +100,9 @@ public class ChessGame {
         int startCol = move.getStartPosition().getColumn();
         int direction = (colDiff > 0) ? 1 : -1;
         ChessGame intermediateGame = this.copy();
-        ChessMove intermediateMove = new ChessMove(move.getStartPosition(),intermediateGame.getBoard().getGridPosition(row, startCol + direction),null);
+        ChessMove intermediateMove = new ChessMove(move.getStartPosition(),
+                intermediateGame.getBoard().getGridPosition(row, startCol + direction),
+                null);
         intermediateGame.executeMove(intermediateGame.getBoard(), intermediateMove);
         return intermediateGame;
     }
@@ -123,7 +125,7 @@ public class ChessGame {
         if (validMoves.contains(move)) {
             executeMove(board, move);
             board.setLastMove(move);
-            TeamTurn = (getTeamTurn() == TeamColor.WHITE) ? TeamColor.BLACK : TeamColor.WHITE;
+            teamTurn = (getTeamTurn() == TeamColor.WHITE) ? TeamColor.BLACK : TeamColor.WHITE;
         } else {
             throw new InvalidMoveException();
         }
@@ -314,11 +316,11 @@ public class ChessGame {
             return false;
         }
         ChessGame chessGame = (ChessGame) o;
-        return Objects.equals(board, chessGame.board) && TeamTurn == chessGame.TeamTurn;
+        return Objects.equals(board, chessGame.board) && teamTurn == chessGame.teamTurn;
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(board, TeamTurn);
+        return Objects.hash(board, teamTurn);
     }
 }

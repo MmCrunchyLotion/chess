@@ -23,11 +23,11 @@ public class AuthDAOTests {
     @Test
     @DisplayName("Add Auth - Success")
     void addAuthPositive() throws DataAccessException {
-        AuthData auth = new AuthData("testUser", null);
+        AuthData auth = new AuthData("testUser1", null);
         authDAO.addAuth(auth);
         AuthData result = authDAO.getAuthByToken(auth.getAuthToken());
         assertNotNull(result);
-        assertEquals("testUser", result.getUsername());
+        assertEquals("testUser1", result.getUsername());
     }
 
     @Test
@@ -59,7 +59,7 @@ public class AuthDAOTests {
     @Test
     @DisplayName("Remove Auth - Success")
     void removeAuthPositive() throws DataAccessException {
-        AuthData auth = new AuthData("testUser", null);
+        AuthData auth = new AuthData("testUser2", null);
         authDAO.addAuth(auth);
         authDAO.removeAuth(auth.getAuthToken());
         AuthData result = authDAO.getAuthByToken(auth.getAuthToken());

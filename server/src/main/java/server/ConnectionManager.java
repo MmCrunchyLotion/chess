@@ -28,7 +28,9 @@ public class ConnectionManager {
 
     public void sendToUser(int gameID, String username, ServerMessage message) throws IOException {
         ArrayList<Connection> gameConnections = connections.get(gameID);
-        if (gameConnections == null) return;
+        if (gameConnections == null) {
+            return;
+        }
         String json = new Gson().toJson(message);
         for (Connection c : gameConnections) {
             if (c.username.equals(username) && c.session.isOpen()) {
@@ -40,7 +42,9 @@ public class ConnectionManager {
 
     public void broadcast(int gameID, String excludeUsername, ServerMessage message) throws IOException {
         ArrayList<Connection> gameConnections = connections.get(gameID);
-        if (gameConnections == null) return;
+        if (gameConnections == null) {
+            return;
+        }
         String json = new Gson().toJson(message);
         for (Connection c : new ArrayList<>(gameConnections)) {
             if (!c.username.equals(excludeUsername) && c.session.isOpen()) {
