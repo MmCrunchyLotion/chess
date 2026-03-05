@@ -22,8 +22,8 @@ public class RegisterUserService extends Service {
     public void register() throws ResponseException {
         checkNullFields(user);
         try {
-            UserData DBUser = userDAO.getUser(user.getUsername());
-            if (DBUser != null && DBUser.getUsername().equals(user.getUsername())) {
+            UserData dbUser = userDAO.getUser(user.getUsername());
+            if (dbUser != null && dbUser.getUsername().equals(user.getUsername())) {
                 throw new ResponseException(AlreadyTaken, "Error: Username already taken.");
             }
             userDAO.createUser(user);

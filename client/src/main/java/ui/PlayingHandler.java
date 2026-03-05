@@ -135,10 +135,18 @@ public class PlayingHandler extends Handler implements WebSocketFacade.MessageHa
     }
 
     private ChessPosition parsePosition(String pos) {
-        if (pos.length() != 2) throw new IllegalArgumentException("Invalid position");
+        return getChessPosition(pos);
+    }
+
+    static ChessPosition getChessPosition(String pos) {
+        if (pos.length() != 2) {
+            throw new IllegalArgumentException("Invalid position");
+        }
         int col = pos.charAt(0) - 'a' + 1;
         int row = pos.charAt(1) - '0';
-        if (col < 1 || col > 8 || row < 1 || row > 8) throw new IllegalArgumentException("Out of bounds");
+        if (col < 1 || col > 8 || row < 1 || row > 8) {
+            throw new IllegalArgumentException("Out of bounds");
+        }
         return new ChessPosition(row, col);
     }
 

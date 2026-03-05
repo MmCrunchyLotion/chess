@@ -98,7 +98,8 @@ public class MoveCalculator {
         if (row == enPassantRow && board.getLastMove() != null) {
             ChessMove lastMove = board.getLastMove();
             ChessPiece lastMovedPiece = board.getPiece(lastMove.getEndPosition());
-            if (lastMovedPiece != null && lastMovedPiece.getPieceType() == ChessPiece.PieceType.PAWN && lastMovedPiece.getTeamColor() != piece.getTeamColor()) {
+            if (lastMovedPiece != null && lastMovedPiece.getPieceType() == ChessPiece.PieceType.PAWN
+                    && lastMovedPiece.getTeamColor() != piece.getTeamColor()) {
                 int rowDifference = Math.abs(lastMove.getEndPosition().getRow() - lastMove.getStartPosition().getRow());
                 if (rowDifference == 2) {
                     int attackColumn = lastMove.getEndPosition().getColumn();

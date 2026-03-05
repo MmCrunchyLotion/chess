@@ -225,8 +225,12 @@ public class WebSocketHandler {
     }
 
     private String getRole(String username, GameData game) {
-        if (username.equals(game.getWhiteUsername())) return "WHITE";
-        if (username.equals(game.getBlackUsername())) return "BLACK";
+        if (username.equals(game.getWhiteUsername())) {
+            return "WHITE";
+        }
+        if (username.equals(game.getBlackUsername())) {
+            return "BLACK";
+        }
         return "an observer";
     }
 

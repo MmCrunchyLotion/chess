@@ -75,7 +75,7 @@ public class Server {
         UserData givenUser = new Gson().fromJson(ctx.body(), UserData.class);
         try {
             LoginService loginRequest = new LoginService(givenUser, userDAO, authDAO);
-            loginRequest.login(); // TODO: May need to make it so that a browser only allows for one user to be logged in at a time, but server allows for multiple users to be logged in simultaneously
+            loginRequest.login();
             String message = loginRequest.getAuth().toString();
             ctx.result(message);
         } catch (ResponseException ex) {
@@ -98,7 +98,10 @@ public class Server {
         try {
             ListGamesService listGamesRequest = new ListGamesService(auth, authDAO, gameDAO);
             Collection<GameData> games = listGamesRequest.list();
-            var summaries = games.stream().map(g -> new GameSummary(g.getGameID(), g.getGameName(), g.getWhiteUsername(), g.getBlackUsername())).toList();
+            var summaries = games.stream().map(g -> new GameSummary(g.getGameID(),
+                    g.getGameName(),
+                    g.getWhiteUsername(),
+                    g.getBlackUsername())).toList();
             String message = new Gson().toJson(Map.of("games", summaries));
             ctx.result(message);
         } catch (ResponseException ex) {

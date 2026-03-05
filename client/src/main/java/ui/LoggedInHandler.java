@@ -164,19 +164,6 @@ public class LoggedInHandler extends Handler {
         }
     }
 
-    private Integer getListNumber() {
-        int listNumber = Integer.parseInt(arg1);
-        if (gameList.length == 0) {
-            System.out.println("Please run 'list' first to see available games\n");
-            return null;
-        }
-        if (listNumber < 1 || listNumber > gameList.length) {
-            System.out.println("Invalid game number, please choose between 1 and " + gameList.length + "\n");
-            return null;
-        }
-        return listNumber;
-    }
-
     public UILoop.States getState() {
         return state;
     }

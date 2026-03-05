@@ -44,7 +44,9 @@ public class UserDAO extends MySqlDataAccess {
 
     public boolean verifyPassword(String username, String plainPassword) throws DataAccessException {
         UserData user = getUser(username);
-        if (user == null) return false;
+        if (user == null) {
+            return false;
+        }
         return BCrypt.checkpw(plainPassword, user.getPassword());
     }
 
