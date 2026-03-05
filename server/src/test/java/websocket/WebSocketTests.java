@@ -1,4 +1,4 @@
-package WebSocket;
+package websocket;
 
 import chess.*;
 import org.junit.jupiter.api.*;

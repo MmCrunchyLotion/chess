@@ -23,13 +23,13 @@ public class UserDAOTests {
     @Test
     @DisplayName("Create User - Success")
     void addUserPositive() throws DataAccessException {
-        UserData user = new UserData("testUser", "password", "email");
+        UserData user = new UserData("testUser1", "password", "email");
         userDAO.createUser(user);
         UserData result = userDAO.getUser(user.getUsername());
         assertNotNull(result);
         assertTrue(userDAO.verifyPassword(result.getUsername(), "password"));
         assertEquals("email", result.getEmail());
-        assertEquals("testUser", result.getUsername());
+        assertEquals("testUser1", result.getUsername());
     }
 
     @Test
@@ -52,13 +52,13 @@ public class UserDAOTests {
     @Test
     @DisplayName("Get User - Success")
     void getUserPositive() throws DataAccessException {
-        UserData user = new UserData("testUser", "password", "email");
+        UserData user = new UserData("testUser2", "password", "email");
         userDAO.createUser(user);
         UserData result = userDAO.getUser(user.getUsername());
         assertNotNull(result);
         assertTrue(userDAO.verifyPassword(result.getUsername(), "password"));
         assertEquals("email", result.getEmail());
-        assertEquals("testUser", result.getUsername());
+        assertEquals("testUser2", result.getUsername());
     }
 
     @Test

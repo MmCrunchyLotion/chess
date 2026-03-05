@@ -66,7 +66,11 @@ public class UILoop {
         scanner.close();
     }
 
-    private void handleState(LoggedOutHandler loggedOutHandler, String[] args, LoggedInHandler loggedInHandler, PlayingHandler[] playingHandler, SpectatingHandler[] spectatingHandler) {
+    private void handleState(LoggedOutHandler loggedOutHandler,
+                             String[] args,
+                             LoggedInHandler loggedInHandler,
+                             PlayingHandler[] playingHandler,
+                             SpectatingHandler[] spectatingHandler) {
         try {
             switch (state) {
                 case LOGGED_OUT -> {
