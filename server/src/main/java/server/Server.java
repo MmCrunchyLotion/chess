@@ -29,7 +29,13 @@ public class Server {
 
         WebSocketHandler wsHandler = new WebSocketHandler(authDAO, gameDAO);
 
-        javalin = Javalin.create(config -> config.staticFiles.add("web"))
+        javalin = Javalin.create(
+                config -> {
+                    config.staticFiles.add("web");
+                    config.jetty.modifyWebSocketServletFactory(
+                            factory -> {factory.setIdleTimeout(java.time.Duration.ofHours(1));
+                        });
+                })
                 .post("/user", this::registerUser)
                 .post("/session", this::login)
                 .delete("/session", this::logout)

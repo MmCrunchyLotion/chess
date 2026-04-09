@@ -35,14 +35,17 @@ public class WebSocketHandler {
                 case RESIGN -> handleResign(session, command);
             }
         } catch (Exception e) {
-            e.printStackTrace();
-            sendError(session, "Error: " + e.getMessage());
+            sendError(session, e.getMessage());
         }
     }
 
     @OnWebSocketError
     public void onError(Session session, Throwable error) {
-        System.err.println("WebSocket error: " + error.getMessage());
+        if (error != null) {
+            System.err.println("WebSocket error: " + error.getMessage());
+        } else {
+            System.err.println("WebSocket error");
+        }
     }
 
     @OnWebSocketClose
@@ -52,31 +55,23 @@ public class WebSocketHandler {
     private void handleConnect(Session session, UserGameCommand command) throws IOException {
         try {
             AuthData auth = authDAO.getAuthByToken(command.getAuthToken());
-
-            GameData game = gameDAO.getGame(command.getGameID());
-
             if (auth == null) {
                 sendError(session, "Error: invalid auth token");
                 return;
             }
+            GameData game = gameDAO.getGame(command.getGameID());
             if (game == null) {
                 sendError(session, "Error: game not found");
                 return;
             }
-
             String username = auth.getUsername();
             connections.add(command.getGameID(), username, session);
-
-            ServerMessage loadGameMsg = ServerMessage.loadGame(game.getGame());
-            connections.sendToUser(command.getGameID(), username, loadGameMsg);
-
+            connections.sendToUser(command.getGameID(), username,
+                    ServerMessage.loadGame(game.getGame()));
             String role = getRole(username, game);
-            connections.broadcast(command.getGameID(), username, ServerMessage.notification(username + " connected as " + role));
-
+            connections.broadcast(command.getGameID(), username,
+                    ServerMessage.notification(username + " connected as " + role));
         } catch (DataAccessException e) {
-            sendError(session, "Error: " + e.getMessage());
-        } catch (Exception e) {
-            e.printStackTrace();
             sendError(session, "Error: " + e.getMessage());
         }
     }
@@ -85,12 +80,12 @@ public class WebSocketHandler {
         try {
             AuthData auth = authDAO.getAuthByToken(command.getAuthToken());
             if (auth == null) {
-                sendError(session, "Error: invalid auth token");
+                sendError(session, "invalid auth token");
                 return;
             }
             GameData gameData = gameDAO.getGame(command.getGameID());
             if (gameData == null) {
-                sendError(session, "Error: game not found");
+                sendError(session, "game not found");
                 return;
             }
             String username = auth.getUsername();
@@ -98,7 +93,7 @@ public class WebSocketHandler {
 
             // verify game not over
             if (game.isGameOver()) {
-                sendError(session, "Error: game is already over");
+                sendError(session, "game is already over");
                 return;
             }
 
@@ -106,14 +101,14 @@ public class WebSocketHandler {
             boolean isWhite = username.equals(gameData.getWhiteUsername());
             boolean isBlack = username.equals(gameData.getBlackUsername());
             if (!isWhite && !isBlack) {
-                sendError(session, "Error: observers cannot make moves");
+                sendError(session, "observers cannot make moves");
                 return;
             }
 
             // verify user's turn
             ChessGame.TeamColor userColor = isWhite ? ChessGame.TeamColor.WHITE : ChessGame.TeamColor.BLACK;
             if (game.getTeamTurn() != userColor) {
-                sendError(session, "Error: it is not your turn");
+                sendError(session, "it is not your turn");
                 return;
             }
 
@@ -153,9 +148,9 @@ public class WebSocketHandler {
             }
 
         } catch (InvalidMoveException e) {
-            sendError(session, "Error: invalid move - " + e.getMessage());
+            sendError(session, "invalid move - " + e.getMessage());
         } catch (DataAccessException e) {
-            sendError(session, "Error: " + e.getMessage());
+            sendError(session, e.getMessage());
         }
     }
 
@@ -163,7 +158,7 @@ public class WebSocketHandler {
         try {
             AuthData auth = authDAO.getAuthByToken(command.getAuthToken());
             if (auth == null) {
-                sendError(session, "Error: invalid auth token");
+                sendError(session, "invalid auth token");
                 return;
             }
             String username = auth.getUsername();
@@ -182,7 +177,7 @@ public class WebSocketHandler {
                     ServerMessage.notification(username + " left the game"));
 
         } catch (DataAccessException e) {
-            sendError(session, "Error: " + e.getMessage());
+            sendError(session, e.getMessage());
         }
     }
 
@@ -190,12 +185,12 @@ public class WebSocketHandler {
         try {
             AuthData auth = authDAO.getAuthByToken(command.getAuthToken());
             if (auth == null) {
-                sendError(session, "Error: invalid auth token");
+                sendError(session, "invalid auth token");
                 return;
             }
             GameData gameData = gameDAO.getGame(command.getGameID());
             if (gameData == null) {
-                sendError(session, "Error: game not found");
+                sendError(session, "game not found");
                 return;
             }
             String username = auth.getUsername();
@@ -203,12 +198,12 @@ public class WebSocketHandler {
             boolean isPlayer = username.equals(gameData.getWhiteUsername()) ||
                     username.equals(gameData.getBlackUsername());
             if (!isPlayer) {
-                sendError(session, "Error: observers cannot resign");
+                sendError(session, "observers cannot resign");
                 return;
             }
 
             if (gameData.getGame().isGameOver()) {
-                sendError(session, "Error: game is already over");
+                sendError(session, "game is already over");
                 return;
             }
 
@@ -220,7 +215,7 @@ public class WebSocketHandler {
                     ServerMessage.notification(username + " resigned. Game over."));
 
         } catch (DataAccessException e) {
-            sendError(session, "Error: " + e.getMessage());
+            sendError(session, e.getMessage());
         }
     }
 

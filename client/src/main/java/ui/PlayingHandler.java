@@ -13,6 +13,7 @@ public class PlayingHandler extends Handler implements WebSocketFacade.MessageHa
     private ChessGame.TeamColor playerColor;
     private final int gameID;
     private final AuthData auth;
+    private boolean leaving = false;
 
     public PlayingHandler(WebSocketFacade ws, AuthData auth, int gameID, ChessGame.TeamColor color) {
         this.ws = ws;
@@ -24,20 +25,24 @@ public class PlayingHandler extends Handler implements WebSocketFacade.MessageHa
 
     @Override
     public void onLoadGame(ChessGame game) {
+        if (leaving) return;
         this.currentGame = game;
+        printGameStatus(game);
         BoardDisplay.drawBoard(game, playerColor);
         System.out.printf("%n[PLAYING] >>> ");
     }
 
     @Override
     public void onNotification(String message) {
+        if (leaving) return;
         System.out.println("\n" + message);
         System.out.printf("[PLAYING] >>> ");
     }
 
     @Override
     public void onError(String errorMessage) {
-        System.out.println("\nError: " + errorMessage);
+        if (leaving) return;
+        System.out.println("\n" + errorMessage);
         System.out.printf("[PLAYING] >>> ");
     }
 
@@ -66,8 +71,23 @@ public class PlayingHandler extends Handler implements WebSocketFacade.MessageHa
         System.out.println("  quit                    - exit the client\n");
     }
 
+    private void printGameStatus(ChessGame game) {
+        if (game.isGameOver()) {
+            System.out.println("\n*** Game Over ***");
+        } else {
+            ChessGame.TeamColor turn = game.getTeamTurn();
+            String turnName = turn == ChessGame.TeamColor.WHITE ? "White" : "Black";
+            if (turn == playerColor) {
+                System.out.println("\nYour turn (" + turnName + ")");
+            } else {
+                System.out.println("\n" + turnName + "'s turn");
+            }
+        }
+    }
+
     private void redraw() {
         if (currentGame != null) {
+            printGameStatus(currentGame);
             BoardDisplay.drawBoard(currentGame, playerColor);
         } else {
             System.out.println("No game to display\n");
@@ -83,7 +103,6 @@ public class PlayingHandler extends Handler implements WebSocketFacade.MessageHa
             ChessPosition from = parsePosition(arg1);
             ChessPosition to = parsePosition(arg2);
             ChessPiece.PieceType promotion = null;
-            // check for promotion
             if (args.length == 4) {
                 promotion = parsePromotion(arg3);
                 if (promotion == null) {
@@ -103,6 +122,11 @@ public class PlayingHandler extends Handler implements WebSocketFacade.MessageHa
         String input = scanner.nextLine().trim();
         if (input.equalsIgnoreCase("yes")) {
             ws.resign(auth.getAuthToken(), gameID);
+            if (currentGame != null) {
+                currentGame.setGameOver(true);
+                printGameStatus(currentGame);
+                BoardDisplay.drawBoard(currentGame, playerColor);
+            }
         } else {
             System.out.println("Resign cancelled\n");
         }
@@ -127,6 +151,7 @@ public class PlayingHandler extends Handler implements WebSocketFacade.MessageHa
     }
 
     public UILoop.States leave() throws ResponseException {
+        leaving = true;
         ws.leave(auth.getAuthToken(), gameID);
         ws.close();
         this.state = UILoop.States.LOGGED_IN;

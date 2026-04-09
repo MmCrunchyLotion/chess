@@ -12,6 +12,12 @@ public class UserDAOTests {
     @BeforeAll
     static void setup() throws DataAccessException {
         userDAO = new UserDAO();
+        AuthDAO authDAO = new AuthDAO();
+        GameDAO gameDAO = new GameDAO();
+        // clear in correct order: auth -> game -> user
+        authDAO.clear();
+        gameDAO.clear();
+        userDAO.clear();
     }
 
     @BeforeEach

@@ -5,6 +5,8 @@ import chess.ChessMove;
 import com.google.gson.Gson;
 import exception.ResponseException;
 import jakarta.websocket.*;
+import org.glassfish.tyrus.client.ClientManager;
+import org.glassfish.tyrus.client.ClientProperties;
 import websocket.commands.UserGameCommand;
 import websocket.messages.ServerMessage;
 
@@ -30,9 +32,17 @@ public class WebSocketFacade {
         this.messageHandler = messageHandler;
         try {
             URI uri = new URI(serverUrl.replace("http", "ws") + "/ws");
-            WebSocketContainer container = ContainerProvider.getWebSocketContainer();
-            container.setDefaultMaxSessionIdleTimeout(5 * 60 * 1000);
-            this.session = container.connectToServer(this, uri);
+            ClientManager container = ClientManager.createClient();
+            container.getProperties().put("org.glassfish.tyrus.incomingBufferSize", 4194304);
+            try {
+                Session s = container.connectToServer(this, uri);
+                s.setMaxIdleTimeout(3600000);
+            } catch (Exception e) {
+                throw new ResponseException(ResponseException.Code.ServerError,
+                    "Failed to connect to server: " + e.getMessage());
+            }
+        } catch (ResponseException e) {
+            throw e;
         } catch (Exception e) {
             throw new ResponseException(ResponseException.Code.ServerError, e.getMessage());
         }

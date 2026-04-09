@@ -38,7 +38,11 @@ public class ServerFacade {
 
     public GameData[] listGames(String authToken) throws ResponseException {
         record ListGamesResponse(GameData[] games) {}
-        return makeRequest("GET", "/game", null, ListGamesResponse.class, authToken).games();
+        ListGamesResponse response = makeRequest("GET", "/game", null, ListGamesResponse.class, authToken);
+        if (response == null || response.games() == null) {
+            return new GameData[0];
+        }
+        return response.games();
     }
 
     public void joinGame(String playerColor, int gameID, String authToken) throws ResponseException {

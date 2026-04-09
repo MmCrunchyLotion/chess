@@ -23,6 +23,7 @@ public class LoggedInHandler extends Handler {
     }
 
     public void handle(String[] args, AuthData auth) throws ResponseException {
+        this.state = UILoop.States.LOGGED_IN;
         setArgs(args);
         switch (arg0.toLowerCase()) {
             case "help" -> help();
@@ -135,6 +136,7 @@ public class LoggedInHandler extends Handler {
     }
 
     private UILoop.States observe(String[] args, AuthData auth) throws ResponseException {
+        gameList = server.listGames(auth.getAuthToken());
         if (args.length != 2) {
             System.out.println("Usage: observe <NUMBER>\n");
             return UILoop.States.LOGGED_IN;

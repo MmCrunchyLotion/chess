@@ -14,6 +14,7 @@ public class SpectatingHandler extends Handler implements WebSocketFacade.Messag
     private ChessGame currentGame;
     private final int gameID;
     private final AuthData auth;
+    private boolean leaving = false;
 
     public SpectatingHandler(WebSocketFacade ws, AuthData auth, int gameID) {
         this.ws = ws;
@@ -24,20 +25,24 @@ public class SpectatingHandler extends Handler implements WebSocketFacade.Messag
 
     @Override
     public void onLoadGame(ChessGame game) {
+        if (leaving) return;
         this.currentGame = game;
+        printGameStatus(game);
         BoardDisplay.drawBoard(game, ChessGame.TeamColor.WHITE);
         System.out.printf("%n[SPECTATING] >>> ");
     }
 
     @Override
     public void onNotification(String message) {
+        if (leaving) return;
         System.out.println("\n" + message);
         System.out.printf("[SPECTATING] >>> ");
     }
 
     @Override
     public void onError(String errorMessage) {
-        System.out.println("\nError: " + errorMessage);
+        if (leaving) return;
+        System.out.println("\n" + errorMessage);
         System.out.printf("[SPECTATING] >>> ");
     }
 
@@ -62,8 +67,19 @@ public class SpectatingHandler extends Handler implements WebSocketFacade.Messag
         System.out.println("  quit                    - exit the client\n");
     }
 
+    private void printGameStatus(ChessGame game) {
+        if (game.isGameOver()) {
+            System.out.println("\n*** Game Over ***");
+        } else {
+            ChessGame.TeamColor turn = game.getTeamTurn();
+            String turnName = turn == ChessGame.TeamColor.WHITE ? "White" : "Black";
+            System.out.println("\n" + turnName + "'s turn");
+        }
+    }
+
     private void redraw() {
         if (currentGame != null) {
+            printGameStatus(currentGame);
             BoardDisplay.drawBoard(currentGame, ChessGame.TeamColor.WHITE);
         } else {
             System.out.println("No game to display\n");
@@ -89,6 +105,7 @@ public class SpectatingHandler extends Handler implements WebSocketFacade.Messag
     }
 
     public UILoop.States leave() throws ResponseException {
+        leaving = true;
         ws.leave(auth.getAuthToken(), gameID);
         ws.close();
         this.state = UILoop.States.LOGGED_IN;
@@ -100,11 +117,6 @@ public class SpectatingHandler extends Handler implements WebSocketFacade.Messag
         return getChessPosition(pos);
     }
 
-    public UILoop.States getState() {
-        return state;
-    }
-
-    public void setState(UILoop.States state) {
-        this.state = state;
-    }
+    public UILoop.States getState() { return state; }
+    public void setState(UILoop.States state) { this.state = state; }
 }
